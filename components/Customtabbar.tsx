@@ -6,9 +6,9 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useTheme } from '@/context/ThemeContext';
-import { SPACING, TYPOGRAPHY } from '@/constants';
+import { SPACING } from '@/constants';
 
-interface TabBarProps {
+interface CustomTabBarProps {
   tabs: string[];
   activeTab: number;
   onTabPress: (index: number) => void;
@@ -16,25 +16,29 @@ interface TabBarProps {
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export const TabBar: React.FC<TabBarProps> = ({ tabs, activeTab, onTabPress }) => {
-  const translateX = useSharedValue(0);
-  const indicatorWidth = useSharedValue(60);
-  const tabRefs = useRef<Array<View | null>>([]);
+export const CustomTabBar: React.FC<CustomTabBarProps> = ({
+  tabs,
+  activeTab,
+  onTabPress,
+}) => {
   const { colors } = useTheme();
+  const tabRefs = useRef<Array<View | null>>([]);
+  const indicatorX = useSharedValue(0);
+  const indicatorWidth = useSharedValue(60);
 
   useEffect(() => {
     // Measure the active tab and update indicator
     const activeTabRef = tabRefs.current[activeTab];
     if (activeTabRef) {
       activeTabRef.measure((x, y, width, height, pageX, pageY) => {
-        translateX.value = withTiming(pageX, { duration: 200 });
-        indicatorWidth.value = withTiming(width, { duration: 200 });
+        indicatorX.value = withTiming(pageX + 16, { duration: 50});
+        indicatorWidth.value = withTiming(width - 32, { duration: 50 });
       });
     }
   }, [activeTab]);
 
   const indicatorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: translateX.value }],
+    transform: [{ translateX: indicatorX.value }],
     width: indicatorWidth.value,
   }));
 
@@ -63,16 +67,19 @@ export const TabBar: React.FC<TabBarProps> = ({ tabs, activeTab, onTabPress }) =
         ref={(ref) => {
           tabRefs.current[index] = ref as any;
         }}
-        style={[styles.tab, animatedStyle]}
         onPress={() => onTabPress(index)}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
+        style={[styles.tab, animatedStyle]}
       >
         <Text
           style={[
             styles.tabText,
             { color: colors.text.secondary },
-            isActive && { color: colors.text.primary },
+            isActive && [
+              styles.tabTextActive,
+              { color: colors.text.primary },
+            ],
           ]}
         >
           {tab}
@@ -82,18 +89,18 @@ export const TabBar: React.FC<TabBarProps> = ({ tabs, activeTab, onTabPress }) =
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
+    <View style={styles.container}>
       <View style={styles.tabsContainer}>
         {tabs.map((tab, index) => (
           <TabButton key={tab} tab={tab} index={index} />
         ))}
       </View>
-      <Animated.View 
+      <Animated.View
         style={[
-          styles.indicator, 
-          { backgroundColor: colors.text.primary }, 
-          indicatorStyle
-        ]} 
+          styles.slidingIndicator,
+          { backgroundColor: colors.text.primary },
+          indicatorStyle,
+        ]}
       />
     </View>
   );
@@ -101,25 +108,29 @@ export const TabBar: React.FC<TabBarProps> = ({ tabs, activeTab, onTabPress }) =
 
 const styles = StyleSheet.create({
   container: {
-    borderBottomWidth: 1,
+    position: 'relative',
   },
   tabsContainer: {
     flexDirection: 'row',
     paddingHorizontal: SPACING.md,
+    gap: 0,
   },
   tab: {
-    paddingVertical: SPACING.md,
-    paddingHorizontal: SPACING.lg,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     marginRight: SPACING.xs,
-    alignItems: 'center',
-    justifyContent: 'center',
+    position: 'relative',
     borderRadius: 20,
   },
   tabText: {
-    ...TYPOGRAPHY.body,
+    fontSize: 15,
+    fontWeight: '400',
+    letterSpacing: 0.2,
+  },
+  tabTextActive: {
     fontWeight: '500',
   },
-  indicator: {
+  slidingIndicator: {
     position: 'absolute',
     bottom: 0,
     left: 0,

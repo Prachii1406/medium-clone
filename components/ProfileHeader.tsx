@@ -1,118 +1,173 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, Pressable } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Profile } from '@/types';
 import { useTheme } from '@/context/ThemeContext';
 import { SPACING, TYPOGRAPHY } from '@/constants';
 
-interface ProfileHeaderProps {
-  profile: Profile;
-  onEditPress?: () => void;
-  onStatsPress?: () => void;
-  onSettingsPress?: () => void;
-}
+type Props = {
+  profile: {
+    name: string;
+    followers?: number;
+    following?: number;
+  };
+  onEditPress: () => void;
+  onStatsPress: () => void;
+  onSettingsPress: () => void;
+};
 
-export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
+export function ProfileHeader({
   profile,
   onEditPress,
   onStatsPress,
   onSettingsPress,
-}) => {
+}: Props) {
   const { colors } = useTheme();
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
-        <View style={styles.spacer} />
-        <Pressable onPress={onSettingsPress} style={styles.settingsButton}>
-          <Ionicons name="settings-outline" size={24} color={colors.text.secondary} />
-        </Pressable>
+    <View style={styles.container}>
+      {/* Settings */}
+      <Pressable style={styles.settings} onPress={onSettingsPress}>
+        <Ionicons
+          name="settings-outline"
+          size={22}
+          color={colors.text.secondary}
+        />
+      </Pressable>
+
+      {/* TOP ROW */}
+      <View style={styles.topRow}>
+        {/* Avatar */}
+        <View style={[styles.avatar, { backgroundColor: colors.accent }]}>
+          <Text style={[styles.avatarText, { color: colors.background }]}>
+            {profile.name.charAt(0)}
+          </Text>
+        </View>
+
+        {/* Name + followers */}
+        <View style={styles.info}>
+          <Text style={[styles.name, { color: colors.text.primary }]}>
+            {profile.name}
+          </Text>
+
+          <Text style={[styles.followers, { color: colors.text.secondary }]}>
+            {profile.followers ?? 0} followers · {profile.following ?? 1} following
+          </Text>
+        </View>
       </View>
 
-      <View style={styles.profileInfo}>
-        <Image source={{ uri: profile.avatar }} style={[styles.avatar, { backgroundColor: colors.accent }]} />
-        <Text style={[styles.name, { color: colors.text.primary }]}>{profile.name}</Text>
-        <Text style={[styles.stats, { color: colors.text.secondary }]}>
-          {profile.followers} followers · {profile.following} following
-        </Text>
-      </View>
-
-      <View style={styles.buttonsContainer}>
-        <Pressable style={[styles.statsButton, { backgroundColor: colors.surface }]} onPress={onStatsPress}>
-          <Text style={[styles.statsButtonText, { color: colors.text.primary }]}>View stats</Text>
-        </Pressable>
-        <Pressable 
-          style={[styles.editButton, { borderColor: colors.text.primary }]} 
-          onPress={onEditPress}
+      {/* ACTIONS */}
+      <View style={styles.actions}>
+        <Pressable
+          onPress={onStatsPress}
+          style={[styles.primaryButton, { backgroundColor: colors.surface }]}
         >
-          <Text style={[styles.editButtonText, { color: colors.text.primary }]}>Edit your profile</Text>
+          <Text style={[styles.primaryText, { color: colors.text.primary }]}>
+            View stats
+          </Text>
+        </Pressable>
+
+        <Pressable
+          onPress={onEditPress}
+          style={[styles.outlineButton, { borderColor: colors.border }]}
+        >
+          <Text style={[styles.outlineText, { color: colors.text.primary }]}>
+            Edit your profile
+          </Text>
         </Pressable>
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: SPACING.md,
+    paddingTop: SPACING.xl,
+    paddingBottom: SPACING.xl,
+    flexDirection: 'column',  
+     
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+
+  settings: {
+    position: 'absolute',
+    top: SPACING.md,
+    right: SPACING.md,
+    zIndex: 10,
+  },
+
+  topRow: {
+    flexDirection: 'row',      
     alignItems: 'center',
     paddingHorizontal: SPACING.md,
-    marginBottom: SPACING.lg,
+    paddingTop: SPACING.lg,
   },
-  spacer: {
-    width: 24,
+
+  info: {
+    marginLeft: SPACING.md,
+    flexShrink: 1,
   },
-  settingsButton: {
-    padding: SPACING.xs,
-  },
-  profileInfo: {
+
+  headerContent: {
     alignItems: 'center',
-    paddingHorizontal: SPACING.md,
-    marginBottom: SPACING.lg,
+    flexDirection: 'column',
+    
   },
+
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: SPACING.md,
   },
+
+  avatarText: {
+    fontSize: 32,
+    fontWeight: '700',
+  },
+
   name: {
     ...TYPOGRAPHY.h2,
     marginBottom: SPACING.xs,
   },
-  stats: {
+
+  followers: {
     ...TYPOGRAPHY.body,
+    marginBottom: SPACING.lg,
   },
-  buttonsContainer: {
+
+  actions: {
     flexDirection: 'row',
-    paddingHorizontal: SPACING.md,
-    gap: SPACING.md,
-    marginBottom: SPACING.md,
-  },
-  statsButton: {
-    flex: 1,
-    paddingVertical: SPACING.sm + 2,
-    borderRadius: 24,
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+    marginTop: SPACING.md,
   },
-  statsButtonText: {
+
+  primaryButton: {
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.sm,
+    borderRadius: 999,
+  },
+
+  primaryText: {
     ...TYPOGRAPHY.body,
     fontWeight: '500',
   },
-  editButton: {
-    flex: 1,
-    paddingVertical: SPACING.sm + 2,
-    borderRadius: 24,
+
+  outlineButton: {
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.sm,
+    borderRadius: 999,
     borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
-  editButtonText: {
+
+  outlineText: {
     ...TYPOGRAPHY.body,
     fontWeight: '500',
   },

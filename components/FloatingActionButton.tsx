@@ -9,6 +9,7 @@ import Animated, {
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/context/ThemeContext';
 import { SPACING } from '@/constants';
+import { Platform } from 'react-native';
 
 interface FloatingActionButtonProps {
   onPress?: () => void;
@@ -65,13 +66,17 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+
+    ...(Platform.OS === 'web'
+      ? {
+          boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)',
+        }
+      : {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+          elevation: 8,
+        }),
   },
 });

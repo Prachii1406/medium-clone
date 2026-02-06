@@ -21,7 +21,7 @@ const FILTER_TABS = ['Writers and publications', 'Topics'];
 
 export default function FollowingScreen() {
   const [activeFilter, setActiveFilter] = useState(0);
-  const { colors, theme } = useTheme();
+  const { colors, activeTheme } = useTheme();
 
   const renderFilterTabs = () => (
     <View style={[styles.filterContainer, { borderBottomColor: colors.border }]}>
@@ -55,7 +55,7 @@ export default function FollowingScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
-      <StatusBar barStyle={theme === 'light' ? 'dark-content' : 'light-content'} backgroundColor={colors.background} />
+      <StatusBar barStyle={activeTheme === 'light' ? 'dark-content' : 'light-content'} backgroundColor={colors.background} />
       
       <View style={styles.header}>
         <Text style={[styles.title, { color: colors.text.primary }]}>Following</Text>
@@ -91,6 +91,9 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.md,
+    paddingTop: SPACING.lg,
+     paddingLeft:SPACING.lg,
+   
   },
   title: {
     ...TYPOGRAPHY.h1,

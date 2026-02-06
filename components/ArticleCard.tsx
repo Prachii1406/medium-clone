@@ -49,7 +49,6 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, onPress }) =>
     opacity.value = withTiming(1, { duration: 150 });
   };
 
-  // Generate a consistent color based on name
   const getColorFromName = (name: string) => {
     const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2'];
     const index = name.length % colors.length;
@@ -62,15 +61,11 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, onPress }) =>
         <Image
           source={{ uri: article.author.avatar }}
           style={styles.avatar}
-          onError={() => {
-            console.log('Avatar failed to load:', article.author.avatar);
-            setAvatarError(true);
-          }}
+          onError={() => setAvatarError(true)}
         />
       );
     }
 
-    // Fallback: Show initials
     return (
       <View style={[styles.avatar, styles.avatarFallback, { backgroundColor: getColorFromName(article.author.name) }]}>
         <Text style={[styles.avatarText, { color: '#FFFFFF' }]}>
@@ -89,15 +84,11 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, onPress }) =>
           source={{ uri: article.thumbnail }}
           style={styles.thumbnail}
           resizeMode="cover"
-          onError={() => {
-            console.log('Thumbnail failed to load:', article.thumbnail);
-            setThumbnailError(true);
-          }}
+          onError={() => setThumbnailError(true)}
         />
       );
     }
 
-    // Fallback: Show placeholder
     return (
       <View style={[styles.thumbnail, styles.thumbnailFallback, { backgroundColor: colors.surface }]}>
         <Ionicons name="image-outline" size={32} color={colors.text.secondary} />

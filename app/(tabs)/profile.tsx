@@ -1,15 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   StatusBar,
   Pressable,
+  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 import Animated, {
   FadeInDown,
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
 } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { ProfileHeader } from '@/components/ProfileHeader';
@@ -17,12 +21,27 @@ import { TabBar } from '@/components/TabBar';
 import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { useTheme } from '@/context/ThemeContext';
 import { SPACING, TYPOGRAPHY, DUMMY_PROFILE } from '@/constants';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const PROFILE_TABS = ['Stories', 'Lists', 'About'];
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function ProfileScreen() {
   const [activeTab, setActiveTab] = useState(0);
-  const { colors, theme } = useTheme();
+  const translateX = useSharedValue(0);
+  const { colors, activeTheme } = useTheme();
+
+  useEffect(() => {
+    translateX.value = withTiming(-activeTab * SCREEN_WIDTH, { duration: 250 });
+  }, [activeTab]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+  }));
+
+  const handleSettingsPress = () => {
+    router.push('/settings');
+  };
 
   const renderDraftStory = () => (
     <Animated.View
@@ -58,49 +77,42 @@ export default function ProfileScreen() {
     </Animated.View>
   );
 
-  const renderContent = () => {
-    if (activeTab === 0) {
-      // Stories tab
-      return (
-        <View style={styles.storiesContent}>
-          <View style={styles.draftSection}>
-            <Pressable style={styles.draftHeader}>
-              <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>Draft</Text>
-              <Ionicons
-                name="chevron-down"
-                size={20}
-                color={colors.text.primary}
-              />
-            </Pressable>
-            {renderDraftStory()}
-          </View>
-        </View>
-      );
-    } else if (activeTab === 1) {
-      // Lists tab
-      return (
-        <View style={styles.emptyContent}>
-          <Text style={[styles.emptyText, { color: colors.text.secondary }]}>
-            No lists yet
-          </Text>
-        </View>
-      );
-    } else {
-      // About tab
-      return (
-        <View style={styles.aboutContent}>
-          <Text style={[styles.emptyText, { color: colors.text.secondary }]}>
-            Tell readers about yourself
-          </Text>
-        </View>
-      );
-    }
-  };
+  const renderStoriesContent = () => (
+    <View style={styles.storiesContent}>
+      <View style={styles.draftSection}>
+        <Pressable style={styles.draftHeaderRow}>
+          <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>Draft</Text>
+          <Ionicons
+            name="chevron-down"
+            size={20}
+            color={colors.text.primary}
+          />
+        </Pressable>
+        {renderDraftStory()}
+      </View>
+    </View>
+  );
+
+  const renderListsContent = () => (
+    <View style={styles.emptyContent}>
+      <Text style={[styles.emptyText, { color: colors.text.secondary }]}>
+        No lists yet
+      </Text>
+    </View>
+  );
+
+  const renderAboutContent = () => (
+    <View style={styles.aboutContent}>
+      <Text style={[styles.emptyText, { color: colors.text.secondary }]}>
+        Tell readers about yourself
+      </Text>
+    </View>
+  );
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <StatusBar 
-        barStyle={theme === 'light' ? 'dark-content' : 'light-content'} 
+        barStyle={activeTheme === 'light' ? 'dark-content' : 'light-content'} 
         backgroundColor={colors.background} 
       />
       
@@ -114,7 +126,7 @@ export default function ProfileScreen() {
           profile={DUMMY_PROFILE}
           onEditPress={() => console.log('Edit profile')}
           onStatsPress={() => console.log('View stats')}
-          onSettingsPress={() => console.log('Settings')}
+          onSettingsPress={handleSettingsPress}
         />
 
         <View style={[styles.tabBarWrapper, { backgroundColor: colors.background }]}>
@@ -125,7 +137,28 @@ export default function ProfileScreen() {
           />
         </View>
 
-        {renderContent()}
+        <Animated.View style={[styles.pagesContainer, animatedStyle]}>
+          {/* Stories Page */}
+          <View style={[styles.page, { width: SCREEN_WIDTH }]}>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {renderStoriesContent()}
+            </ScrollView>
+          </View>
+
+          {/* Lists Page */}
+          <View style={[styles.page, { width: SCREEN_WIDTH }]}>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {renderListsContent()}
+            </ScrollView>
+          </View>
+
+          {/* About Page */}
+          <View style={[styles.page, { width: SCREEN_WIDTH }]}>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {renderAboutContent()}
+            </ScrollView>
+          </View>
+        </Animated.View>
       </ScrollView>
 
       <FloatingActionButton onPress={() => console.log('Create new story')} />
@@ -144,6 +177,13 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   tabBarWrapper: {},
+  pagesContainer: {
+    flexDirection: 'row',
+    minHeight: 400,
+  },
+  page: {
+    // Width is set inline
+  },
   storiesContent: {
     flex: 1,
   },
@@ -159,6 +199,12 @@ const styles = StyleSheet.create({
     padding: SPACING.md,
     borderRadius: 8,
     borderWidth: 1,
+  },
+  draftHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: SPACING.md,
   },
   draftHeader: {
     flexDirection: 'row',

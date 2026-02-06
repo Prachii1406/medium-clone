@@ -1,16 +1,3 @@
-// constants/index.ts or constants/dummyData.ts
-
-export const COLORS = {
-  background: '#0A0A0A',
-  surface: '#1A1A1A',
-  text: {
-    primary: '#FFFFFF',
-    secondary: '#B3B3B3',
-  },
-  border: '#2A2A2A',
-  accent: '#1A8917',
-};
-
 export const SPACING = {
   xs: 4,
   sm: 8,
@@ -21,59 +8,29 @@ export const SPACING = {
 
 export const TYPOGRAPHY = {
   h1: {
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: '700' as const,
     lineHeight: 40,
   },
   h2: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '700' as const,
     lineHeight: 32,
   },
   h3: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '700' as const,
     lineHeight: 28,
   },
   body: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '400' as const,
     lineHeight: 24,
   },
 };
 
-export interface Author {
-  name: string;
-  avatar: string;
-  verified: boolean;
-}
+import { Article, Profile } from '@/types';
 
-export interface Collection {
-  name: string;
-  icon: string;
-}
-
-export interface Article {
-  id: string;
-  title: string;
-  subtitle: string;
-  author: Author;
-  collection?: Collection;
-  thumbnail?: string;
-  date: string;
-  claps: number;
-  comments: number;
-  featured: boolean;
-}
-
-export interface Profile {
-  name: string;
-  avatar: string;
-  followers: number;
-  following: number;
-}
-
-// Using free avatar APIs
 export const DUMMY_ARTICLES: Article[] = [
   {
     id: '1',
@@ -256,8 +213,8 @@ export const DUMMY_ARTICLES: Article[] = [
 ];
 
 export const DUMMY_PROFILE: Profile = {
-  name: 'John Doe',
+  name: 'Rohan',
   avatar: 'https://i.pravatar.cc/150?img=60',
-  followers: 1234,
-  following: 567,
+  followers: 0,
+  following: 1,
 };
