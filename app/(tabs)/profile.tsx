@@ -9,19 +9,21 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import Animated, {
+import {
   FadeInDown,
   useSharedValue,
   useAnimatedStyle,
   withTiming,
 } from 'react-native-reanimated';
+import { MotiView } from 'moti';
+import {MotiPressable} from 'moti/interactions';
 import { Ionicons } from '@expo/vector-icons';
 import { ProfileHeader } from '@/components/ProfileHeader';
 import { TabBar } from '@/components/TabBar';
 import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { useTheme } from '@/context/ThemeContext';
 import { SPACING, TYPOGRAPHY, DUMMY_PROFILE } from '@/constants';
-import { ScrollView } from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native';
 
 const PROFILE_TABS = ['Stories', 'Lists', 'About'];
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -44,7 +46,7 @@ export default function ProfileScreen() {
   };
 
   const renderDraftStory = () => (
-    <Animated.View
+    <MotiView
       entering={FadeInDown.duration(400).delay(100)}
       style={[
         styles.draftCard,
@@ -65,29 +67,29 @@ export default function ProfileScreen() {
             {DUMMY_PROFILE.name}
           </Text>
         </View>
-        <Pressable style={styles.draftMenu}>
+        <MotiPressable style={styles.draftMenu}>
           <Ionicons
             name="ellipsis-vertical"
             size={20}
             color={colors.text.secondary}
           />
-        </Pressable>
+        </MotiPressable>
       </View>
       <Text style={[styles.draftTitle, { color: colors.text.primary }]}>Untitled story</Text>
-    </Animated.View>
+    </MotiView>
   );
 
   const renderStoriesContent = () => (
     <View style={styles.storiesContent}>
       <View style={styles.draftSection}>
-        <Pressable style={styles.draftHeaderRow}>
+        <MotiPressable style={styles.draftHeaderRow}>
           <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>Draft</Text>
           <Ionicons
             name="chevron-down"
             size={20}
             color={colors.text.primary}
           />
-        </Pressable>
+        </MotiPressable>
         {renderDraftStory()}
       </View>
     </View>
@@ -137,7 +139,7 @@ export default function ProfileScreen() {
           />
         </View>
 
-        <Animated.View style={[styles.pagesContainer, animatedStyle]}>
+        <MotiView style={[styles.pagesContainer, animatedStyle]}>
           {/* Stories Page */}
           <View style={[styles.page, { width: SCREEN_WIDTH }]}>
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -158,7 +160,7 @@ export default function ProfileScreen() {
               {renderAboutContent()}
             </ScrollView>
           </View>
-        </Animated.View>
+        </MotiView>
       </ScrollView>
 
       <FloatingActionButton onPress={() => console.log('Create new story')} />

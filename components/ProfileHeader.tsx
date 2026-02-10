@@ -5,6 +5,8 @@ import {
   StyleSheet,
   Pressable,
 } from 'react-native';
+import { MotiView } from 'moti';
+import {MotiPressable} from 'moti/interactions';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/context/ThemeContext';
 import { SPACING, TYPOGRAPHY } from '@/constants';
@@ -29,9 +31,18 @@ export function ProfileHeader({
   const { colors } = useTheme();
 
   return (
-    <View style={styles.container}>
-      {/* Settings */}
-      <Pressable style={styles.settings} onPress={onSettingsPress}>
+    <MotiView
+      from={{ opacity: 0, translateY: 4 }}
+      animate={{ opacity: 1, translateY: 0 }}
+      transition={{ type: 'timing', duration: 300 }}
+      style={styles.container}
+    >
+      {/* SETTINGS (FIXED) */}
+      <Pressable
+        style={styles.settings}
+        onPress={onSettingsPress}
+        hitSlop={10}
+      >
         <Ionicons
           name="settings-outline"
           size={22}
@@ -55,32 +66,32 @@ export function ProfileHeader({
           </Text>
 
           <Text style={[styles.followers, { color: colors.text.secondary }]}>
-            {profile.followers ?? 0} followers · {profile.following ?? 1} following
+            {profile.followers ?? 0} followers · {profile.following ?? 0} following
           </Text>
         </View>
       </View>
 
       {/* ACTIONS */}
       <View style={styles.actions}>
-        <Pressable
+        <MotiPressable
           onPress={onStatsPress}
           style={[styles.primaryButton, { backgroundColor: colors.surface }]}
         >
           <Text style={[styles.primaryText, { color: colors.text.primary }]}>
             View stats
           </Text>
-        </Pressable>
+        </MotiPressable>
 
-        <Pressable
+        <MotiPressable
           onPress={onEditPress}
           style={[styles.outlineButton, { borderColor: colors.border }]}
         >
           <Text style={[styles.outlineText, { color: colors.text.primary }]}>
             Edit your profile
           </Text>
-        </Pressable>
+        </MotiPressable>
       </View>
-    </View>
+    </MotiView>
   );
 }
 
@@ -88,19 +99,17 @@ const styles = StyleSheet.create({
   container: {
     paddingTop: SPACING.xl,
     paddingBottom: SPACING.xl,
-    flexDirection: 'column',  
-     
   },
 
   settings: {
     position: 'absolute',
     top: SPACING.md,
     right: SPACING.md,
-    zIndex: 10,
+    zIndex: 20,
   },
 
   topRow: {
-    flexDirection: 'row',      
+    flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: SPACING.md,
     paddingTop: SPACING.lg,
@@ -111,19 +120,12 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
 
-  headerContent: {
-    alignItems: 'center',
-    flexDirection: 'column',
-    
-  },
-
   avatar: {
     width: 72,
     height: 72,
     borderRadius: 36,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: SPACING.md,
   },
 
   avatarText: {

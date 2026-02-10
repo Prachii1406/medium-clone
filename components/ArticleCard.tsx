@@ -13,6 +13,8 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
+import { MotiView } from 'moti';
+import {MotiPressable} from 'moti/interactions';
 import { Ionicons } from '@expo/vector-icons';
 import { Article } from '@/types';
 import { useTheme } from '@/context/ThemeContext';
@@ -25,7 +27,8 @@ interface ArticleCardProps {
   onPress?: () => void;
 }
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+// Use MotiPressable for pressable animations
+
 
 export const ArticleCard: React.FC<ArticleCardProps> = ({ article, onPress }) => {
   const scale = useSharedValue(1);
@@ -97,7 +100,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, onPress }) =>
   };
 
   return (
-    <AnimatedPressable
+    <MotiPressable
       style={[
         styles.container,
         animatedStyle,
@@ -110,11 +113,16 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, onPress }) =>
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
     >
-      <View style={styles.header}>
-        <View style={styles.authorContainer}>
+      <MotiView
+        from={{ opacity: 0, translateY: 6 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        transition={{ type: 'timing', duration: 280 }}
+        style={styles.header}
+      >
+        <MotiView style={styles.authorContainer}>
           {renderAvatar()}
-          <View style={styles.authorInfo}>
-            <View style={styles.authorNameRow}>
+          <MotiView style={styles.authorInfo}>
+            <MotiView style={styles.authorNameRow}>
               <Text style={[styles.authorName, { color: colors.text.primary }]}>
                 {article.author.name}
               </Text>
@@ -126,9 +134,9 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, onPress }) =>
                   style={styles.verifiedIcon}
                 />
               )}
-            </View>
+            </MotiView>
             {article.collection && (
-              <View style={styles.collectionBadge}>
+              <MotiView style={styles.collectionBadge}>
                 <Text style={[styles.collectionIcon, { color: colors.text.primary, backgroundColor: colors.accent }]}>
                   {article.collection.icon}
                 </Text>
@@ -139,31 +147,41 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, onPress }) =>
                 <Text style={[styles.collectionAuthor, { color: colors.text.primary }]}>
                   {article.author.name}
                 </Text>
-              </View>
+              </MotiView>
             )}
-          </View>
-        </View>
+          </MotiView>
+        </MotiView>
         <Ionicons name="ellipsis-horizontal" size={20} color={colors.text.secondary} />
-      </View>
+      </MotiView>
 
-      <View style={styles.content}>
-        <View style={styles.textContent}>
+      <MotiView
+        from={{ opacity: 0, translateY: 6 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        transition={{ type: 'timing', duration: 320 }}
+        style={styles.content}
+      >
+        <MotiView style={styles.textContent}>
           <Text style={[styles.title, { color: colors.text.primary }]} numberOfLines={3}>
             {article.title}
           </Text>
           <Text style={[styles.subtitle, { color: colors.text.secondary }]} numberOfLines={2}>
             {article.subtitle}
           </Text>
-        </View>
+        </MotiView>
         {renderThumbnail()}
-      </View>
+      </MotiView>
 
-      <View style={styles.footer}>
+      <MotiView
+        from={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ type: 'timing', duration: 260 }}
+        style={styles.footer}
+      >
         <Pressable style={[styles.dislikeButton, { borderColor: colors.text.secondary }]}>
           <Ionicons name="thumbs-down-outline" size={18} color={colors.text.secondary} />
         </Pressable>
         
-        <View style={styles.metaContainer}>
+        <MotiView style={styles.metaContainer}>
           <Text style={[styles.metaText, { color: colors.text.secondary }]}>{article.date}</Text>
           <Ionicons name="hand-left" size={16} color={colors.text.secondary} style={styles.iconSpacing} />
           <Text style={[styles.metaText, { color: colors.text.secondary }]}>
@@ -171,9 +189,9 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, onPress }) =>
           </Text>
           <Ionicons name="chatbubble" size={16} color={colors.text.secondary} style={styles.iconSpacing} />
           <Text style={[styles.metaText, { color: colors.text.secondary }]}>{article.comments}</Text>
-        </View>
-      </View>
-    </AnimatedPressable>
+        </MotiView>
+      </MotiView>
+    </MotiPressable>
   );
 };
 

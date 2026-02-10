@@ -19,13 +19,15 @@ import Animated, {
   Extrapolate,
   withSpring,
 } from 'react-native-reanimated';
+import { MotiPressable } from 'moti/interactions';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/context/ThemeContext';
 import { SPACING, DUMMY_ARTICLES } from '@/constants';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+// Use MotiPressable for the pressable animated buttons
+
 
 export default function ArticleScreen() {
   const { id } = useLocalSearchParams();
@@ -276,18 +278,18 @@ export default function ArticleScreen() {
       <View style={[styles.actionBar, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
         <View style={styles.actionLeft}>
           <View style={styles.reactionGroup}>
-            <AnimatedPressable onPress={handleLike} style={likeAnimatedStyle}>
-              <View style={styles.reactionButton}>
-                <Ionicons
-                  name={isLiked ? "hand-left" : "hand-left-outline"}
-                  size={24}
-                  color={isLiked ? colors.accent : colors.text.secondary}
-                />
-                <Text style={[styles.reactionCount, { color: colors.text.secondary }]}>
-                  1.4K
-                </Text>
-              </View>
-            </AnimatedPressable>
+              <MotiPressable onPress={handleLike} style={likeAnimatedStyle}>
+                <View style={styles.reactionButton}>
+                  <Ionicons
+                    name={isLiked ? "hand-left" : "hand-left-outline"}
+                    size={24}
+                    color={isLiked ? colors.accent : colors.text.secondary}
+                  />
+                  <Text style={[styles.reactionCount, { color: colors.text.secondary }]}>
+                    1.4K
+                  </Text>
+                </View>
+              </MotiPressable>
             <Pressable style={styles.reactionButton}>
               <Ionicons name="chatbubble-outline" size={22} color={colors.text.secondary} />
               <Text style={[styles.reactionCount, { color: colors.text.secondary }]}>43</Text>
@@ -295,13 +297,13 @@ export default function ArticleScreen() {
           </View>
         </View>
         <View style={styles.actionRight}>
-          <AnimatedPressable onPress={handleBookmark} style={bookmarkAnimatedStyle}>
+          <MotiPressable onPress={handleBookmark} style={bookmarkAnimatedStyle}>
             <Ionicons
               name={isBookmarked ? "bookmark" : "bookmark-outline"}
               size={24}
               color={isBookmarked ? colors.accent : colors.text.secondary}
             />
-          </AnimatedPressable>
+          </MotiPressable>
           <Pressable style={styles.actionIconButton}>
             <Ionicons name="share-outline" size={24} color={colors.text.secondary} />
           </Pressable>

@@ -1,11 +1,12 @@
 import React from 'react';
-import { StyleSheet, Pressable } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
   withSequence,
 } from 'react-native-reanimated';
+import { MotiPressable } from 'moti/interactions';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/context/ThemeContext';
 import { SPACING } from '@/constants';
@@ -15,7 +16,8 @@ interface FloatingActionButtonProps {
   onPress?: () => void;
 }
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+// Use MotiPressable for pressable animations
+
 
 export const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
   onPress,
@@ -45,14 +47,14 @@ export const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
   };
 
   return (
-    <AnimatedPressable
+    <MotiPressable
       style={[styles.fab, animatedStyle, { backgroundColor: colors.accent }]}
       onPress={onPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
     >
       <Ionicons name="create-outline" size={28} color={colors.background} />
-    </AnimatedPressable>
+    </MotiPressable>
   );
 };
 

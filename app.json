@@ -6,6 +6,10 @@
     "orientation": "portrait",
     "scheme": "medium",
     "userInterfaceStyle": "automatic",
+    "jsEngine": "hermes",
+    "updates": {
+      "enabled": false
+    },
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
@@ -17,7 +21,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#E6F4FE"
       },
       "permissions": [
         "INTERNET",
@@ -25,29 +29,24 @@
       ],
       "usesCleartextTraffic": true,
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.prach14.medium"
     },
     "web": {
-      "output": "static",
+      "output": "static"
     },
     "plugins": [
-      "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
-          "dark": {
-            "backgroundColor": "#000000"
-          }
-        }
-      ]
+      "expo-router"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "d7557be1-da51-43ec-9fc0-ab578d101b98"
+      }
     }
   }
 }

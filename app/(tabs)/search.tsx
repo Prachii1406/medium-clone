@@ -9,7 +9,9 @@ import {
   TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import { FadeInDown } from 'react-native-reanimated';
+import { MotiView} from 'moti';
+import {MotiPressable} from 'moti/interactions';
 import { Ionicons } from '@expo/vector-icons';
 import { ArticleCard } from '@/components/ArticleCard';
 import { useTheme } from '@/context/ThemeContext';
@@ -74,11 +76,11 @@ export default function SearchScreen() {
             contentContainerStyle={styles.topicsScroll}
           >
             {TOPIC_TAGS.map((tag, index) => (
-              <Animated.View
+              <MotiView
                 key={tag}
                 entering={FadeInDown.duration(400).delay(index * 50)}
               >
-                <Pressable
+                <MotiPressable
                   style={[
                     styles.topicTag,
                     { backgroundColor: colors.surface, borderColor: colors.border },
@@ -87,8 +89,8 @@ export default function SearchScreen() {
                   <Text style={[styles.topicText, { color: colors.text.secondary }]}>
                     {tag}
                   </Text>
-                </Pressable>
-              </Animated.View>
+                </MotiPressable>
+              </MotiView>
             ))}
           </ScrollView>
         </View>
@@ -100,7 +102,7 @@ export default function SearchScreen() {
           </Text>
 
           {trendingArticles.map((article, index) => (
-            <Animated.View
+            <MotiView
               key={article.id}
               entering={FadeInDown.duration(400).delay(200 + index * 100)}
             >
@@ -131,11 +133,11 @@ export default function SearchScreen() {
                       </Text>
                     </View>
                   </View>
-                  <Pressable onPress={() => router.push(`/article?id=${article.id}`)}>
+                  <MotiPressable onPress={() => router.push(`/article?id=${article.id}`)}>
                     <Text style={[styles.trendingTitle, { color: colors.text.primary }]}>
                       {article.title}
                     </Text>
-                  </Pressable>
+                  </MotiPressable>
                   {article.thumbnail && (
                     <View style={styles.trendingImageContainer}>
                       <View style={[styles.trendingImage, { backgroundColor: colors.surface }]} />
@@ -146,7 +148,7 @@ export default function SearchScreen() {
                   </Text>
                 </View>
               </View>
-            </Animated.View>
+            </MotiView>
           ))}
         </View>
 

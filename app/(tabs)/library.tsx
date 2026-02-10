@@ -5,11 +5,11 @@ import {
   StyleSheet,
   ScrollView,
   StatusBar,
-  Pressable,
-  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import { FadeInDown } from 'react-native-reanimated';
+import { MotiView } from 'moti';
+import { MotiPressable } from 'moti/interactions';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/context/ThemeContext';
 import { SPACING, TYPOGRAPHY } from '@/constants';
@@ -21,7 +21,7 @@ export default function LibraryScreen() {
   const { colors, activeTheme } = useTheme();
 
   const renderReadingList = () => (
-    <Animated.View
+    <MotiView
       entering={FadeInDown.duration(400).delay(100)}
       style={[
         styles.listCard,
@@ -51,59 +51,69 @@ export default function LibraryScreen() {
           <Text style={[styles.listMetaText, { color: colors.text.secondary }]}>
             No stories
           </Text>
-          <Ionicons name="lock-closed" size={16} color={colors.text.secondary} style={{ marginLeft: 6 }} />
+          <Ionicons
+            name="lock-closed"
+            size={16}
+            color={colors.text.secondary}
+            style={{ marginLeft: 6 }}
+          />
         </View>
+
         <View style={styles.listActions}>
-          <Pressable style={styles.listAction}>
-            <Ionicons name="arrow-down-circle-outline" size={24} color={colors.text.primary} />
-          </Pressable>
-          <Pressable style={styles.listAction}>
-            <Ionicons name="ellipsis-horizontal" size={24} color={colors.text.primary} />
-          </Pressable>
+          <MotiPressable
+            accessibilityRole="button"
+            style={styles.listAction}
+            animate={{ scale: 0.96 }}
+            transition={{ type: 'timing', duration: 120 }}
+          >
+            <Ionicons
+              name="arrow-down-circle-outline"
+              size={24}
+              color={colors.text.primary}
+            />
+          </MotiPressable>
+
+          <MotiPressable
+            accessibilityRole="button"
+            style={styles.listAction}
+            animate={{ scale: 0.96 }}
+            transition={{ type: 'timing', duration: 120 }}
+          >
+            <Ionicons
+              name="ellipsis-horizontal"
+              size={24}
+              color={colors.text.primary}
+            />
+          </MotiPressable>
         </View>
       </View>
 
-      {/* Placeholder thumbnails */}
       <View style={styles.thumbnailGrid}>
         <View style={[styles.thumbnail, { backgroundColor: colors.surface }]} />
         <View style={[styles.thumbnail, { backgroundColor: colors.surface }]} />
         <View style={[styles.thumbnail, { backgroundColor: colors.surface }]} />
       </View>
-    </Animated.View>
+    </MotiView>
   );
 
   const renderContent = () => {
     if (activeTab === 0) {
-      return (
-        <View style={styles.content}>
-          {renderReadingList()}
-        </View>
-      );
-    } else if (activeTab === 1) {
-      return (
-        <View style={styles.emptyState}>
-          <Text style={[styles.emptyText, { color: colors.text.secondary }]}>
-            No saved lists yet
-          </Text>
-        </View>
-      );
-    } else if (activeTab === 2) {
-      return (
-        <View style={styles.emptyState}>
-          <Text style={[styles.emptyText, { color: colors.text.secondary }]}>
-            No digest stories yet
-          </Text>
-        </View>
-      );
-    } else {
-      return (
-        <View style={styles.emptyState}>
-          <Text style={[styles.emptyText, { color: colors.text.secondary }]}>
-            No highlights yet
-          </Text>
-        </View>
-      );
+      return <View style={styles.content}>{renderReadingList()}</View>;
     }
+
+    const emptyMessages = [
+      'No saved lists yet',
+      'No digest stories yet',
+      'No highlights yet',
+    ];
+
+    return (
+      <View style={styles.emptyState}>
+        <Text style={[styles.emptyText, { color: colors.text.secondary }]}>
+          {emptyMessages[activeTab - 1]}
+        </Text>
+      </View>
+    );
   };
 
   return (
@@ -116,13 +126,20 @@ export default function LibraryScreen() {
         backgroundColor={colors.background}
       />
 
+      {/* Header */}
       <View style={styles.header}>
         <Text style={[styles.title, { color: colors.text.primary }]}>
           Your library
         </Text>
-        <Pressable style={[styles.newListButton, { backgroundColor: '#0F9D58' }]}>
+
+        <MotiPressable
+          accessibilityRole="button"
+          style={[styles.newListButton, { backgroundColor: '#0F9D58' }]}
+          animate={{ scale: 0.96 }}
+          transition={{ type: 'timing', duration: 120 }}
+        >
           <Text style={styles.newListText}>New list</Text>
-        </Pressable>
+        </MotiPressable>
       </View>
 
       {/* Tabs */}
@@ -134,25 +151,38 @@ export default function LibraryScreen() {
         >
           {LIBRARY_TABS.map((tab, index) => {
             const isActive = activeTab === index;
+
             return (
-              <Pressable
+              <MotiPressable
                 key={tab}
-                style={styles.tab}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isActive }}
                 onPress={() => setActiveTab(index)}
+                animate={{ scale: isActive ? 1 : 0.96 }}
+                transition={{ type: 'timing', duration: 150 }}
+                style={styles.tab}
               >
                 <Text
                   style={[
                     styles.tabText,
-                    { color: colors.text.secondary },
-                    isActive && { color: colors.text.primary },
+                    { color: isActive ? colors.text.primary : colors.text.secondary },
                   ]}
                 >
                   {tab}
                 </Text>
+
                 {isActive && (
-                  <View style={[styles.tabIndicator, { backgroundColor: colors.text.primary }]} />
+                  <MotiView
+                    from={{ opacity: 0, scaleX: 0.6 }}
+                    animate={{ opacity: 1, scaleX: 1 }}
+                    transition={{ type: 'timing', duration: 180 }}
+                    style={[
+                      styles.tabIndicator,
+                      { backgroundColor: colors.text.primary },
+                    ]}
+                  />
                 )}
-              </Pressable>
+              </MotiPressable>
             );
           })}
         </ScrollView>
@@ -180,7 +210,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.md,
     paddingTop: SPACING.lg,
-     paddingLeft:SPACING.lg,
+    paddingLeft: SPACING.lg,
   },
   title: {
     ...TYPOGRAPHY.h1,
@@ -296,7 +326,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   emptyState: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: SPACING.xl * 3,

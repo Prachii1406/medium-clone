@@ -1,39 +1,37 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { Text, StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import { MotiView } from 'moti';
+import { MotiPressable } from 'moti/interactions';
 import { useTheme } from '@/context/ThemeContext';
 import { SPACING } from '@/constants';
-
 interface CustomTabBarProps {
   tabs: string[];
   activeTab: number;
   onTabPress: (index: number) => void;
 }
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
 export const CustomTabBar: React.FC<CustomTabBarProps> = ({
   tabs,
   activeTab,
   onTabPress,
 }) => {
+
   const { colors } = useTheme();
-  const tabRefs = useRef<Array<View | null>>([]);
+
+  const layouts = useRef<{ x: number; width: number }[]>([]);
   const indicatorX = useSharedValue(0);
-  const indicatorWidth = useSharedValue(60);
+  const indicatorWidth = useSharedValue(0);
 
   useEffect(() => {
-    // Measure the active tab and update indicator
-    const activeTabRef = tabRefs.current[activeTab];
-    if (activeTabRef) {
-      activeTabRef.measure((x, y, width, height, pageX, pageY) => {
-        indicatorX.value = withTiming(pageX + 16, { duration: 50});
-        indicatorWidth.value = withTiming(width - 32, { duration: 50 });
-      });
+    const layout = layouts.current[activeTab];
+    if (layout) {
+      indicatorX.value = withTiming(layout.x, { duration: 150 });
+      indicatorWidth.value = withTiming(layout.width, { duration: 150 });
     }
   }, [activeTab]);
 
@@ -42,59 +40,44 @@ export const CustomTabBar: React.FC<CustomTabBarProps> = ({
     width: indicatorWidth.value,
   }));
 
-  const TabButton = ({ tab, index }: { tab: string; index: number }) => {
-    const isActive = activeTab === index;
-    const scale = useSharedValue(1);
-    const opacity = useSharedValue(0);
-
-    const animatedStyle = useAnimatedStyle(() => ({
-      transform: [{ scale: scale.value }],
-      backgroundColor: `rgba(128, 128, 128, ${opacity.value * 0.15})`,
-    }));
-
-    const handlePressIn = () => {
-      scale.value = withTiming(0.95, { duration: 100 });
-      opacity.value = withTiming(1, { duration: 100 });
-    };
-
-    const handlePressOut = () => {
-      scale.value = withTiming(1, { duration: 100 });
-      opacity.value = withTiming(0, { duration: 150 });
-    };
-
-    return (
-      <AnimatedPressable
-        ref={(ref) => {
-          tabRefs.current[index] = ref as any;
-        }}
-        onPress={() => onTabPress(index)}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        style={[styles.tab, animatedStyle]}
-      >
-        <Text
-          style={[
-            styles.tabText,
-            { color: colors.text.secondary },
-            isActive && [
-              styles.tabTextActive,
-              { color: colors.text.primary },
-            ],
-          ]}
-        >
-          {tab}
-        </Text>
-      </AnimatedPressable>
-    );
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.tabsContainer}>
-        {tabs.map((tab, index) => (
-          <TabButton key={tab} tab={tab} index={index} />
-        ))}
+        {tabs.map((tab, index) => {
+          const isActive = activeTab === index;
+
+          return (
+            <View
+              key={tab}
+              onLayout={(e) => {
+                layouts.current[index] = {
+                  x: e.nativeEvent.layout.x + 16,
+                  width: e.nativeEvent.layout.width - 32,
+                };
+              }}
+            >
+              <MotiPressable
+                onPress={() => onTabPress(index)}
+                animate={{
+                  scale: isActive ? 1 : 0.98,
+                }}
+                transition={{ type: 'timing', duration: 120 }}
+                style={styles.tab}
+              >
+                <Text
+                  style={[
+                    styles.tabText,
+                    { color: isActive ? colors.text.primary : colors.text.secondary },
+                  ]}
+                >
+                  {tab}
+                </Text>
+              </MotiPressable>
+            </View>
+          );
+        })}
       </View>
+
       <Animated.View
         style={[
           styles.slidingIndicator,

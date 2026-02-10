@@ -4,10 +4,10 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  Pressable,
   StatusBar,
   Modal,
 } from 'react-native';
+import { MotiPressable } from 'moti/interactions';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -56,9 +56,9 @@ export default function SettingsScreen() {
 
       {/* Header */}
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={handleBack} style={styles.backButton}>
+        <MotiPressable onPress={handleBack} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
-        </Pressable>
+        </MotiPressable>
         <Text style={[styles.headerTitle, { color: colors.text.primary }]}>
           Settings
         </Text>
@@ -76,24 +76,24 @@ export default function SettingsScreen() {
             Account
           </Text>
 
-          <Pressable style={[styles.listItem, { borderBottomColor: colors.border }]}>
+          <MotiPressable style={[styles.listItem, { borderBottomColor: colors.border }]}>
             <Text style={[styles.listItemText, { color: colors.text.secondary }]}>
               Become a Medium Member
             </Text>
             <Text style={styles.memberIcon}>✨</Text>
-          </Pressable>
+          </MotiPressable>
 
-          <Pressable style={[styles.listItem, { borderBottomColor: colors.border }]}>
+          <MotiPressable style={[styles.listItem, { borderBottomColor: colors.border }]}>
             <Text style={[styles.listItemText, { color: colors.text.secondary }]}>
               Story stats
             </Text>
-          </Pressable>
+          </MotiPressable>
 
-          <Pressable style={[styles.listItem, { borderBottomColor: colors.border }]}>
+          <MotiPressable style={[styles.listItem, { borderBottomColor: colors.border }]}>
             <Text style={[styles.listItemText, { color: colors.text.secondary }]}>
               Account
             </Text>
-          </Pressable>
+          </MotiPressable>
         </View>
 
         {/* Configure Medium */}
@@ -102,14 +102,14 @@ export default function SettingsScreen() {
             Configure Medium
           </Text>
 
-          <Pressable style={[styles.listItem, { borderBottomColor: colors.border }]}>
+          <MotiPressable style={[styles.listItem, { borderBottomColor: colors.border }]}>
             <Text style={[styles.listItemText, { color: colors.text.secondary }]}>
               Refine recommendations
             </Text>
-          </Pressable>
+          </MotiPressable>
 
           {/* Theme */}
-          <Pressable
+          <MotiPressable
             style={[styles.listItem, { borderBottomColor: colors.border }]}
             onPress={() => setShowThemeOptions(true)}
           >
@@ -119,31 +119,31 @@ export default function SettingsScreen() {
             <Text style={[styles.themeValue, { color: colors.text.primary }]}>
               {getThemeLabel()}
             </Text>
-          </Pressable>
+          </MotiPressable>
 
-          <Pressable style={[styles.listItem, { borderBottomColor: colors.border }]}>
+          <MotiPressable style={[styles.listItem, { borderBottomColor: colors.border }]}>
             <Text style={[styles.listItemText, { color: colors.text.secondary }]}>
               Push notifications
             </Text>
-          </Pressable>
+          </MotiPressable>
 
-          <Pressable style={[styles.listItem, { borderBottomColor: colors.border }]}>
+          <MotiPressable style={[styles.listItem, { borderBottomColor: colors.border }]}>
             <Text style={[styles.listItemText, { color: colors.text.secondary }]}>
               Email notifications
             </Text>
-          </Pressable>
+          </MotiPressable>
 
-          <Pressable style={[styles.listItem, { borderBottomColor: colors.border }]}>
+          <MotiPressable style={[styles.listItem, { borderBottomColor: colors.border }]}>
             <Text style={[styles.listItemText, { color: colors.text.secondary }]}>
               Custom app icon
             </Text>
-          </Pressable>
+          </MotiPressable>
 
-          <Pressable style={[styles.listItem, { borderBottomColor: colors.border }]}>
+          <MotiPressable style={[styles.listItem, { borderBottomColor: colors.border }]}>
             <Text style={[styles.listItemText, { color: colors.text.secondary }]}>
               Downloaded content
             </Text>
-          </Pressable>
+          </MotiPressable>
         </View>
 
         {/* Social */}
@@ -164,7 +164,7 @@ export default function SettingsScreen() {
         animationType="fade"
         onRequestClose={() => setShowThemeOptions(false)}
       >
-        <Pressable
+        <MotiPressable
           style={styles.modalBackdrop}
           onPress={() => setShowThemeOptions(false)}
         />
@@ -176,7 +176,7 @@ export default function SettingsScreen() {
             </Text>
 
             {(['system', 'light', 'dark'] as Theme[]).map((item) => (
-              <Pressable
+              <MotiPressable
                 key={item}
                 style={styles.themeOption}
                 onPress={() => handleThemeChange(item)}
@@ -196,17 +196,17 @@ export default function SettingsScreen() {
                     ? 'System Default'
                     : item.charAt(0).toUpperCase() + item.slice(1)}
                 </Text>
-              </Pressable>
+              </MotiPressable>
             ))}
 
-            <Pressable
+            <MotiPressable
               style={styles.cancelButton}
               onPress={() => setShowThemeOptions(false)}
             >
               <Text style={[styles.cancelButtonText, { color: colors.text.secondary }]}>
                 Cancel
               </Text>
-            </Pressable>
+            </MotiPressable>
           </View>
         </View>
       </Modal>
