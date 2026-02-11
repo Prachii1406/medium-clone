@@ -19,14 +19,13 @@ import Animated, {
   Extrapolate,
   withSpring,
 } from 'react-native-reanimated';
+import {MotiView} from 'moti';
 import { MotiPressable } from 'moti/interactions';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/context/ThemeContext';
 import { SPACING, DUMMY_ARTICLES } from '@/constants';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-
-// Use MotiPressable for the pressable animated buttons
 
 
 export default function ArticleScreen() {
@@ -38,7 +37,6 @@ export default function ArticleScreen() {
   const likeScale = useSharedValue(1);
   const bookmarkScale = useSharedValue(1);
 
-  // Find the article - in real app, this would fetch from API
   const article = DUMMY_ARTICLES.find((a) => a.id === id) || DUMMY_ARTICLES[0];
 
   const scrollHandler = useAnimatedScrollHandler({
@@ -111,7 +109,6 @@ export default function ArticleScreen() {
         translucent
       />
 
-      {/* Fixed Header - appears on scroll */}
       <Animated.View
         style={[
           styles.fixedHeader,
@@ -121,9 +118,21 @@ export default function ArticleScreen() {
       >
         <SafeAreaView edges={['top']}>
           <View style={styles.headerContent}>
-            <Pressable onPress={handleBack} style={styles.headerButton}>
-              <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
-            </Pressable>
+            <MotiPressable onPress={handleBack}>
+  {(interaction) => (
+    <MotiView
+      animate={{
+        scale: interaction.value.pressed ? 0.9 : 1,
+        opacity: interaction.value.pressed ? 0.6 : 1,
+      }}
+      transition={{ duration: 100 }}
+      style={styles.headerButton}
+    >
+      <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
+    </MotiView>
+  )}
+</MotiPressable>
+
             <View style={styles.headerActions}>
               <Pressable style={styles.headerButton}>
                 <Ionicons name="share-outline" size={24} color={colors.text.primary} />
@@ -278,18 +287,30 @@ export default function ArticleScreen() {
       <View style={[styles.actionBar, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
         <View style={styles.actionLeft}>
           <View style={styles.reactionGroup}>
-              <MotiPressable onPress={handleLike} style={likeAnimatedStyle}>
-                <View style={styles.reactionButton}>
-                  <Ionicons
-                    name={isLiked ? "hand-left" : "hand-left-outline"}
-                    size={24}
-                    color={isLiked ? colors.accent : colors.text.secondary}
-                  />
-                  <Text style={[styles.reactionCount, { color: colors.text.secondary }]}>
-                    1.4K
-                  </Text>
-                </View>
-              </MotiPressable>
+              <MotiPressable onPress={handleLike}>
+  {(interaction) => (
+    <Animated.View style={likeAnimatedStyle}>
+      <MotiView
+        animate={{
+          scale: interaction.value.pressed ? 0.94 : 1,
+          opacity: interaction.value.pressed ? 0.8 : 1,
+        }}
+        transition={{ type: 'timing', duration: 90 }}
+        style={styles.reactionButton}
+      >
+        <Ionicons
+          name={isLiked ? 'hand-left' : 'hand-left-outline'}
+          size={24}
+          color={isLiked ? colors.accent : colors.text.secondary}
+        />
+        <Text style={[styles.reactionCount, { color: colors.text.secondary }]}>
+          1.4K
+        </Text>
+      </MotiView>
+    </Animated.View>
+  )}
+</MotiPressable>
+
             <Pressable style={styles.reactionButton}>
               <Ionicons name="chatbubble-outline" size={22} color={colors.text.secondary} />
               <Text style={[styles.reactionCount, { color: colors.text.secondary }]}>43</Text>
@@ -297,13 +318,25 @@ export default function ArticleScreen() {
           </View>
         </View>
         <View style={styles.actionRight}>
-          <MotiPressable onPress={handleBookmark} style={bookmarkAnimatedStyle}>
-            <Ionicons
-              name={isBookmarked ? "bookmark" : "bookmark-outline"}
-              size={24}
-              color={isBookmarked ? colors.accent : colors.text.secondary}
-            />
-          </MotiPressable>
+          <MotiPressable onPress={handleBookmark}>
+  {(interaction) => (
+    <Animated.View style={bookmarkAnimatedStyle}>
+      <MotiView
+        animate={{
+          scale: interaction.value.pressed ? 0.94 : 1,
+          opacity: interaction.value.pressed ? 0.8 : 1,
+        }}
+        transition={{ type: 'timing', duration: 90 }}
+      >
+        <Ionicons
+          name={isBookmarked ? 'bookmark' : 'bookmark-outline'}
+          size={24}
+          color={isBookmarked ? colors.accent : colors.text.secondary}
+        />
+      </MotiView>
+    </Animated.View>
+  )}
+</MotiPressable>
           <Pressable style={styles.actionIconButton}>
             <Ionicons name="share-outline" size={24} color={colors.text.secondary} />
           </Pressable>

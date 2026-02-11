@@ -3,36 +3,47 @@ import { Text, StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
-  withTiming,
+  withSpring,
 } from 'react-native-reanimated';
 import { MotiView } from 'moti';
 import { MotiPressable } from 'moti/interactions';
 import { useTheme } from '@/context/ThemeContext';
 import { SPACING } from '@/constants';
+
 interface CustomTabBarProps {
   tabs: string[];
   activeTab: number;
   onTabPress: (index: number) => void;
 }
 
-export const CustomTabBar: React.FC<CustomTabBarProps> = ({
+export const CustomTabBar = ({
   tabs,
   activeTab,
   onTabPress,
-}) => {
-
+}: CustomTabBarProps) => {
   const { colors } = useTheme();
 
   const layouts = useRef<{ x: number; width: number }[]>([]);
   const indicatorX = useSharedValue(0);
   const indicatorWidth = useSharedValue(0);
-
+  const prevTab = useRef<number>(activeTab);
+  
   useEffect(() => {
     const layout = layouts.current[activeTab];
-    if (layout) {
-      indicatorX.value = withTiming(layout.x, { duration: 150 });
-      indicatorWidth.value = withTiming(layout.width, { duration: 150 });
-    }
+    if (!layout) return;
+
+    const distance = Math.abs(activeTab - prevTab.current);
+
+    indicatorX.value = withSpring(layout.x, {
+      damping: distance > 1 ? 14 : 18,
+      stiffness: 180,
+    });
+
+    indicatorWidth.value = withSpring(layout.width, {
+      damping: 18,
+    });
+
+    prevTab.current = activeTab;
   }, [activeTab]);
 
   const indicatorStyle = useAnimatedStyle(() => ({
@@ -56,22 +67,30 @@ export const CustomTabBar: React.FC<CustomTabBarProps> = ({
                 };
               }}
             >
-              <MotiPressable
-                onPress={() => onTabPress(index)}
-                animate={{
-                  scale: isActive ? 1 : 0.98,
-                }}
-                transition={{ type: 'timing', duration: 120 }}
-                style={styles.tab}
-              >
-                <Text
-                  style={[
-                    styles.tabText,
-                    { color: isActive ? colors.text.primary : colors.text.secondary },
-                  ]}
-                >
-                  {tab}
-                </Text>
+              <MotiPressable onPress={() => onTabPress(index)}>
+                {(interaction) => (
+                  <MotiView
+                    animate={{
+                      scale: interaction.value.pressed
+                        ? 0.94
+                        : isActive
+                        ? 1
+                        : 0.98,
+                      opacity: isActive ? 1 : 0.65,
+                    }}
+                    transition={{ type: 'timing', duration: 90 }}
+                    style={styles.tab}
+                  >
+                    <Text
+                      style={[
+                        styles.tabText,
+                        { color: colors.text.primary },
+                      ]}
+                    >
+                      {tab}
+                    </Text>
+                  </MotiView>
+                )}
               </MotiPressable>
             </View>
           );

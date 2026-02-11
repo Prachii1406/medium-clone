@@ -6,7 +6,6 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { FadeInDown, FadeOutUp } from 'react-native-reanimated';
 import { MotiView } from 'moti';
 import { MotiPressable } from 'moti/interactions';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,14 +17,21 @@ const FILTER_TABS = ['Writers and publications', 'Topics'];
 
 export default function FollowingScreen() {
   const [activeFilter, setActiveFilter] = useState(0);
-  const { colors, activeTheme } = useTheme();
+  const { colors } = useTheme();
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['top']}
+    >
+      {/* ---------------- Header ---------------- */}
       <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text.primary }]}>Following</Text>
+        <Text style={[styles.title, { color: colors.text.primary }]}>
+          Following
+        </Text>
       </View>
 
+      {/* ---------------- Filters ---------------- */}
       <View style={[styles.filterContainer, { borderBottomColor: colors.border }]}>
         {FILTER_TABS.map((tab, index) => {
           const isActive = activeFilter === index;
@@ -34,22 +40,32 @@ export default function FollowingScreen() {
             <MotiPressable
               key={tab}
               onPress={() => setActiveFilter(index)}
-              animate={{
-                scale: isActive ? 1 : 0.96,
-                backgroundColor: isActive ? colors.text.primary : 'transparent',
-              }}
-              transition={{ type: 'timing', duration: 150 }}
               accessibilityRole="button"
               accessibilityState={{ selected: isActive }}
+              animate={({ pressed }) => ({
+                scale: pressed ? 0.94 : 1,
+                backgroundColor: isActive
+                  ? colors.text.primary
+                  : 'transparent',
+              })}
+              transition={{ duration: 150 }}
               style={[
                 styles.filterTab,
-                { borderColor: isActive ? colors.text.primary : colors.text.secondary },
+                {
+                  borderColor: isActive
+                    ? colors.text.primary
+                    : colors.text.secondary,
+                },
               ]}
             >
               <Text
                 style={[
                   styles.filterText,
-                  { color: isActive ? colors.background : colors.text.secondary },
+                  {
+                    color: isActive
+                      ? colors.background
+                      : colors.text.secondary,
+                  },
                 ]}
               >
                 {tab}
@@ -60,20 +76,27 @@ export default function FollowingScreen() {
 
         <MotiPressable
           style={[styles.addButton, { borderColor: colors.text.secondary }]}
-          animate={{ scale: 0.96 }}
+          accessibilityRole="button"
+          animate={({ pressed }) => ({
+            scale: pressed ? 0.9 : 1,
+          })}
+          transition={{ duration: 120 }}
         >
           <Ionicons name="add" size={24} color={colors.text.primary} />
         </MotiPressable>
       </View>
 
+      {/* ---------------- Content ---------------- */}
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         <MotiView
-          entering={FadeInDown.duration(400).delay(200)}
-          exiting={FadeOutUp.duration(300)}
+          from={{ opacity: 0, translateY: 20 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          exit={{ opacity: 0, translateY: -20 }}
+          transition={{ duration: 300 }}
         >
           <EmptyState
             title="No stories yet"
@@ -87,6 +110,7 @@ export default function FollowingScreen() {
   );
 }
 
+/* ---------------- Styles ---------------- */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -95,7 +119,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.md,
     paddingTop: SPACING.lg,
-     paddingLeft:SPACING.lg,
+    paddingLeft: SPACING.lg,
   },
   title: {
     ...TYPOGRAPHY.h1,
@@ -112,7 +136,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     borderRadius: 20,
     marginRight: SPACING.sm,
-    backgroundColor: 'transparent',
     borderWidth: 1,
   },
   filterText: {
@@ -133,5 +156,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
+    paddingTop: SPACING.lg,
   },
 });

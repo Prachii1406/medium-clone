@@ -1,68 +1,65 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withSequence,
-} from 'react-native-reanimated';
+import { StyleSheet, Platform } from 'react-native';
+import { MotiView } from 'moti';
 import { MotiPressable } from 'moti/interactions';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/context/ThemeContext';
 import { SPACING } from '@/constants';
-import { Platform } from 'react-native';
 
 interface FloatingActionButtonProps {
   onPress?: () => void;
 }
 
-// Use MotiPressable for pressable animations
-
-
 export const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
   onPress,
 }) => {
-  const scale = useSharedValue(1);
-  const rotation = useSharedValue(0);
   const { colors } = useTheme();
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: scale.value },
-      { rotate: `${rotation.value}deg` },
-    ],
-  }));
-
-  const handlePressIn = () => {
-    scale.value = withSpring(0.9, { damping: 15 });
-  };
-
-  const handlePressOut = () => {
-    scale.value = withSpring(1, { damping: 15 });
-    rotation.value = withSequence(
-      withSpring(-15, { damping: 10 }),
-      withSpring(15, { damping: 10 }),
-      withSpring(0, { damping: 10 })
-    );
-  };
-
   return (
-    <MotiPressable
-      style={[styles.fab, animatedStyle, { backgroundColor: colors.accent }]}
-      onPress={onPress}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-    >
-      <Ionicons name="create-outline" size={28} color={colors.background} />
+    <MotiPressable onPress={onPress} style={styles.wrapper}>
+      {(interaction) => (
+        <MotiView
+          from={{ scale: 0.85, opacity: 0 }}
+          animate={{
+            scale: interaction.value.pressed ? 0.9 : 1,
+            opacity: 1,
+          }}
+          transition={{
+            type: 'spring',
+            damping: 14,
+            stiffness: 180,
+          }}
+          style={[
+            styles.fab,
+            { backgroundColor: colors.accent },
+          ]}
+        >
+          {/* Icon micro-motion */}
+          <MotiView
+            animate={{
+              translateY: interaction.value.pressed ? 1 : 0,
+            }}
+            transition={{ type: 'timing', duration: 80 }}
+          >
+            <Ionicons
+              name="create-outline"
+              size={28}
+              color={colors.background}
+            />
+          </MotiView>
+        </MotiView>
+      )}
     </MotiPressable>
   );
 };
 
 const styles = StyleSheet.create({
-  fab: {
+  wrapper: {
     position: 'absolute',
     bottom: SPACING.lg,
     right: SPACING.lg,
+  },
+  fab: {
     width: 56,
     height: 56,
     borderRadius: 28,
@@ -82,4 +79,3 @@ const styles = StyleSheet.create({
         }),
   },
 });
-

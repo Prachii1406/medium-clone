@@ -5,13 +5,11 @@ import {
   StyleSheet,
   ScrollView,
   StatusBar,
-  Pressable,
   TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { FadeInDown } from 'react-native-reanimated';
-import { MotiView} from 'moti';
-import {MotiPressable} from 'moti/interactions';
+import { MotiView } from 'moti';
+import { MotiPressable } from 'moti/interactions';
 import { Ionicons } from '@expo/vector-icons';
 import { ArticleCard } from '@/components/ArticleCard';
 import { useTheme } from '@/context/ThemeContext';
@@ -78,12 +76,21 @@ export default function SearchScreen() {
             {TOPIC_TAGS.map((tag, index) => (
               <MotiView
                 key={tag}
-                entering={FadeInDown.duration(400).delay(index * 50)}
+                from={{ opacity: 0, translateY: 12 }}
+                animate={{ opacity: 1, translateY: 0 }}
+                transition={{
+                  type: 'timing',
+                  duration: 400,
+                  delay: index * 50,
+                }}
               >
                 <MotiPressable
                   style={[
                     styles.topicTag,
-                    { backgroundColor: colors.surface, borderColor: colors.border },
+                    {
+                      backgroundColor: colors.surface,
+                      borderColor: colors.border,
+                    },
                   ]}
                 >
                   <Text style={[styles.topicText, { color: colors.text.secondary }]}>
@@ -104,14 +111,26 @@ export default function SearchScreen() {
           {trendingArticles.map((article, index) => (
             <MotiView
               key={article.id}
-              entering={FadeInDown.duration(400).delay(200 + index * 100)}
+              from={{ opacity: 0, translateY: 16 }}
+              animate={{ opacity: 1, translateY: 0 }}
+              transition={{
+                type: 'timing',
+                duration: 400,
+                delay: 200 + index * 100,
+              }}
             >
               <View style={styles.trendingItem}>
                 <View style={styles.trendingNumber}>
-                  <Text style={[styles.trendingNumberText, { color: colors.text.secondary }]}>
+                  <Text
+                    style={[
+                      styles.trendingNumberText,
+                      { color: colors.text.secondary },
+                    ]}
+                  >
                     {String(index + 1).padStart(2, '0')}
                   </Text>
                 </View>
+
                 <View style={styles.trendingContent}>
                   <View style={styles.trendingHeader}>
                     <View
@@ -124,26 +143,57 @@ export default function SearchScreen() {
                         {article.collection?.icon || '📝'}
                       </Text>
                     </View>
+
                     <View style={styles.trendingMeta}>
-                      <Text style={[styles.trendingAuthor, { color: colors.text.secondary }]}>
+                      <Text
+                        style={[
+                          styles.trendingAuthor,
+                          { color: colors.text.secondary },
+                        ]}
+                      >
                         In {article.collection?.name || 'General'} by
                       </Text>
-                      <Text style={[styles.trendingAuthorName, { color: colors.text.primary }]}>
+                      <Text
+                        style={[
+                          styles.trendingAuthorName,
+                          { color: colors.text.primary },
+                        ]}
+                      >
                         {article.author.name}
                       </Text>
                     </View>
                   </View>
-                  <MotiPressable onPress={() => router.push(`/article?id=${article.id}`)}>
-                    <Text style={[styles.trendingTitle, { color: colors.text.primary }]}>
+
+                  <MotiPressable
+                    onPress={() => router.push(`/article?id=${article.id}`)}
+                  >
+                    <Text
+                      style={[
+                        styles.trendingTitle,
+                        { color: colors.text.primary },
+                      ]}
+                    >
                       {article.title}
                     </Text>
                   </MotiPressable>
+
                   {article.thumbnail && (
                     <View style={styles.trendingImageContainer}>
-                      <View style={[styles.trendingImage, { backgroundColor: colors.surface }]} />
+                      <View
+                        style={[
+                          styles.trendingImage,
+                          { backgroundColor: colors.surface },
+                        ]}
+                      />
                     </View>
                   )}
-                  <Text style={[styles.trendingDate, { color: colors.text.secondary }]}>
+
+                  <Text
+                    style={[
+                      styles.trendingDate,
+                      { color: colors.text.secondary },
+                    ]}
+                  >
                     {article.date}
                   </Text>
                 </View>
@@ -152,7 +202,7 @@ export default function SearchScreen() {
           ))}
         </View>
 
-        {/* Recommended Articles */}
+        {/* Recommended */}
         <View style={styles.recommendedSection}>
           <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
             Recommended for you
@@ -169,7 +219,6 @@ export default function SearchScreen() {
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

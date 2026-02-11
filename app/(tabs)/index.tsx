@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -9,11 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-} from 'react-native-reanimated';
+import { MotiView } from 'moti';
 import { MotiPressable } from 'moti/interactions';
 import { Ionicons } from '@expo/vector-icons';
 import { ArticleCard } from '@/components/ArticleCard';
@@ -28,23 +24,12 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function HomeScreen() {
   const [activeTab, setActiveTab] = useState(0);
-  const translateX = useSharedValue(0);
   const { colors, activeTheme } = useTheme();
 
   const forYouArticles = DUMMY_ARTICLES;
   const featuredArticles = DUMMY_ARTICLES.filter((a) => a.featured);
   const displayFeaturedArticles =
     featuredArticles.length > 0 ? featuredArticles : DUMMY_ARTICLES;
-
-  useEffect(() => {
-    translateX.value = withTiming(-activeTab * SCREEN_WIDTH, {
-      duration: 280,
-    });
-  }, [activeTab]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: translateX.value }],
-  }));
 
   const renderArticle = ({ item }: { item: Article }) => (
     <ArticleCard
@@ -63,13 +48,21 @@ export default function HomeScreen() {
         backgroundColor={colors.background}
       />
 
-      {/* Header */}
+      {/* ---------------- Header ---------------- */}
       <View style={[styles.stickyHeader, { backgroundColor: colors.background }]}>
         <View style={styles.headerContainer}>
           <Text style={[styles.logo, { color: colors.text.primary }]}>
             Medium
           </Text>
-          <MotiPressable style={styles.notificationButton}>
+
+          <MotiPressable
+            style={styles.notificationButton}
+            animate={({ pressed }) => ({
+              scale: pressed ? 0.9 : 1,
+              opacity: pressed ? 0.7 : 1,
+            })}
+            transition={{ duration: 120 }}
+          >
             <Ionicons
               name="notifications-outline"
               size={24}
@@ -85,8 +78,13 @@ export default function HomeScreen() {
         />
       </View>
 
-      {/* Pages */}
-      <Animated.View style={[styles.pagesContainer, animatedStyle]}>
+      {/* ---------------- Pages ---------------- */}
+      <MotiView
+        style={styles.pagesContainer}
+        animate={{ translateX: -activeTab * SCREEN_WIDTH }}
+        transition={{ type: 'timing', duration: 280 }}
+      >
+        {/* For You */}
         <View style={[styles.page, { width: SCREEN_WIDTH }]}>
           <FlatList
             data={forYouArticles}
@@ -97,6 +95,7 @@ export default function HomeScreen() {
           />
         </View>
 
+        {/* Featured */}
         <View style={[styles.page, { width: SCREEN_WIDTH }]}>
           <FlatList
             data={displayFeaturedArticles}
@@ -106,12 +105,25 @@ export default function HomeScreen() {
             showsVerticalScrollIndicator={false}
           />
         </View>
-      </Animated.View>
+      </MotiView>
 
-      <FloatingActionButton onPress={() => console.log('Create new story')} />
+      {/* ---------------- FAB ---------------- */}
+      <MotiView
+        from={{ translateY: 0 }}
+        animate={{ translateY: -6 }}
+        transition={{
+          loop: true,
+          type: 'timing',
+          duration: 1200,
+        }}
+      >
+        <FloatingActionButton onPress={() => console.log('Create new story')} />
+      </MotiView>
     </SafeAreaView>
   );
 }
+
+/* ---------------- Styles ---------------- */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -126,7 +138,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     paddingBottom: SPACING.lg,
     paddingTop: SPACING.lg,
-    paddingLeft:SPACING.lg,
+    paddingLeft: SPACING.lg,
   },
   logo: {
     fontSize: 36,

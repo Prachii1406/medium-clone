@@ -1,10 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Text, StyleSheet, View } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
 import { MotiView } from 'moti';
 import { MotiPressable } from 'moti/interactions';
 import { useTheme } from '@/context/ThemeContext';
@@ -20,27 +15,22 @@ export const TabBar = ({ tabs, activeTab, onTabPress }: TabBarProps) => {
   const { colors } = useTheme();
 
   const layouts = useRef<{ x: number; width: number }[]>([]);
-  const translateX = useSharedValue(0);
-  const indicatorWidth = useSharedValue(0);
+  const [indicatorX, setIndicatorX] = useState(0);
+  const [indicatorWidth, setIndicatorWidth] = useState(0);
 
   useEffect(() => {
     const layout = layouts.current[activeTab];
     if (layout) {
-      translateX.value = withTiming(layout.x, { duration: 180 });
-      indicatorWidth.value = withTiming(layout.width, { duration: 180 });
+      setIndicatorX(layout.x);
+      setIndicatorWidth(layout.width);
     }
   }, [activeTab]);
-
-  const indicatorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: translateX.value }],
-    width: indicatorWidth.value,
-  }));
 
   return (
     <MotiView
       from={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ type: 'timing', duration: 260 }}
+      transition={{ type: 'timing', duration: 200 }}
       style={[
         styles.container,
         {
@@ -65,29 +55,52 @@ export const TabBar = ({ tabs, activeTab, onTabPress }: TabBarProps) => {
             >
               <MotiPressable
                 onPress={() => onTabPress(index)}
-                animate={{ scale: isActive ? 1 : 0.96 }}
-                transition={{ type: 'timing', duration: 120 }}
-                style={styles.tab}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isActive }}
               >
-                <Text
-                  style={[
-                    styles.tabText,
-                    { color: isActive ? colors.text.primary : colors.text.secondary },
-                  ]}
-                >
-                  {tab}
-                </Text>
+                {(interaction) => (
+                  <MotiView
+                    animate={{
+                      scale: interaction.value.pressed
+                        ? 0.94
+                        : isActive
+                        ? 1
+                        : 0.96,
+                      opacity: isActive ? 1 : 0.65,
+                    }}
+                    transition={{ type: 'timing', duration: 100 }}
+                    style={styles.tab}
+                  >
+                    <Text
+                      style={[
+                        styles.tabText,
+                        { color: colors.text.primary },
+                      ]}
+                    >
+                      {tab}
+                    </Text>
+                  </MotiView>
+                )}
               </MotiPressable>
             </View>
           );
         })}
       </View>
 
-      <Animated.View
+      {/* Indicator */}
+      <MotiView
+        animate={{
+          translateX: indicatorX,
+          width: indicatorWidth,
+        }}
+        transition={{
+          type: 'spring',
+          damping: 18,
+          stiffness: 180,
+        }}
         style={[
           styles.indicator,
           { backgroundColor: colors.text.primary },
-          indicatorStyle,
         ]}
       />
     </MotiView>
@@ -107,7 +120,7 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.lg,
     marginRight: SPACING.xs,
-    borderRadius: 20,
+    borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -119,6 +132,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     left: 0,
-    height: 1.5,
+    height: 3,
+    borderRadius: 999,
   },
 });

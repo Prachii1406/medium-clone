@@ -1,22 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   StatusBar,
-  Pressable,
   Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import {
-  FadeInDown,
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-} from 'react-native-reanimated';
 import { MotiView } from 'moti';
-import {MotiPressable} from 'moti/interactions';
+import { MotiPressable } from 'moti/interactions';
 import { Ionicons } from '@expo/vector-icons';
 import { ProfileHeader } from '@/components/ProfileHeader';
 import { TabBar } from '@/components/TabBar';
@@ -30,65 +23,69 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function ProfileScreen() {
   const [activeTab, setActiveTab] = useState(0);
-  const translateX = useSharedValue(0);
   const { colors, activeTheme } = useTheme();
-
-  useEffect(() => {
-    translateX.value = withTiming(-activeTab * SCREEN_WIDTH, { duration: 250 });
-  }, [activeTab]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: translateX.value }],
-  }));
 
   const handleSettingsPress = () => {
     router.push('/settings');
   };
 
+  /* ---------------- Draft Card ---------------- */
   const renderDraftStory = () => (
-    <MotiView
-      entering={FadeInDown.duration(400).delay(100)}
-      style={[
-        styles.draftCard,
-        {
-          backgroundColor: colors.surface,
-          borderColor: colors.border,
-        },
-      ]}
+    <MotiPressable
+      animate={({ pressed }) => ({
+        scale: pressed ? 0.97 : 1,
+      })}
+      transition={{ duration: 120 }}
     >
-      <View style={styles.draftHeader}>
-        <View style={styles.draftInfo}>
-          <View style={[styles.draftAvatar, { backgroundColor: colors.accent }]}>
-            <Text style={[styles.draftAvatarText, { color: colors.background }]}>
-              {DUMMY_PROFILE.name.charAt(0)}
+      <MotiView
+        from={{ opacity: 0, translateY: 16 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        transition={{ type: 'timing', duration: 400, delay: 100 }}
+        style={[
+          styles.draftCard,
+          {
+            backgroundColor: colors.surface,
+            borderColor: colors.border,
+          },
+        ]}
+      >
+        <View style={styles.draftHeader}>
+          <View style={styles.draftInfo}>
+            <View style={[styles.draftAvatar, { backgroundColor: colors.accent }]}>
+              <Text style={[styles.draftAvatarText, { color: colors.background }]}>
+                {DUMMY_PROFILE.name.charAt(0)}
+              </Text>
+            </View>
+            <Text style={[styles.draftAuthor, { color: colors.text.primary }]}>
+              {DUMMY_PROFILE.name}
             </Text>
           </View>
-          <Text style={[styles.draftAuthor, { color: colors.text.primary }]}>
-            {DUMMY_PROFILE.name}
-          </Text>
+
+          <MotiPressable style={styles.draftMenu}>
+            <Ionicons
+              name="ellipsis-vertical"
+              size={20}
+              color={colors.text.secondary}
+            />
+          </MotiPressable>
         </View>
-        <MotiPressable style={styles.draftMenu}>
-          <Ionicons
-            name="ellipsis-vertical"
-            size={20}
-            color={colors.text.secondary}
-          />
-        </MotiPressable>
-      </View>
-      <Text style={[styles.draftTitle, { color: colors.text.primary }]}>Untitled story</Text>
-    </MotiView>
+
+        <Text style={[styles.draftTitle, { color: colors.text.primary }]}>
+          Untitled story
+        </Text>
+      </MotiView>
+    </MotiPressable>
   );
 
+  /* ---------------- Tab Content ---------------- */
   const renderStoriesContent = () => (
     <View style={styles.storiesContent}>
       <View style={styles.draftSection}>
         <MotiPressable style={styles.draftHeaderRow}>
-          <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>Draft</Text>
-          <Ionicons
-            name="chevron-down"
-            size={20}
-            color={colors.text.primary}
-          />
+          <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
+            Draft
+          </Text>
+          <Ionicons name="chevron-down" size={20} color={colors.text.primary} />
         </MotiPressable>
         {renderDraftStory()}
       </View>
@@ -112,12 +109,15 @@ export default function ProfileScreen() {
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
-      <StatusBar 
-        barStyle={activeTheme === 'light' ? 'dark-content' : 'light-content'} 
-        backgroundColor={colors.background} 
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['top']}
+    >
+      <StatusBar
+        barStyle={activeTheme === 'light' ? 'dark-content' : 'light-content'}
+        backgroundColor={colors.background}
       />
-      
+
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -126,8 +126,8 @@ export default function ProfileScreen() {
       >
         <ProfileHeader
           profile={DUMMY_PROFILE}
-          onEditPress={() => console.log('Edit profile')}
-          onStatsPress={() => console.log('View stats')}
+          onEditPress={() => {}}
+          onStatsPress={() => {}}
           onSettingsPress={handleSettingsPress}
         />
 
@@ -139,63 +139,65 @@ export default function ProfileScreen() {
           />
         </View>
 
-        <MotiView style={[styles.pagesContainer, animatedStyle]}>
-          {/* Stories Page */}
-          <View style={[styles.page, { width: SCREEN_WIDTH }]}>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              {renderStoriesContent()}
-            </ScrollView>
-          </View>
-
-          {/* Lists Page */}
-          <View style={[styles.page, { width: SCREEN_WIDTH }]}>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              {renderListsContent()}
-            </ScrollView>
-          </View>
-
-          {/* About Page */}
-          <View style={[styles.page, { width: SCREEN_WIDTH }]}>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              {renderAboutContent()}
-            </ScrollView>
-          </View>
+        {/* ---------------- Pages ---------------- */}
+        <MotiView
+          style={styles.pagesContainer}
+          animate={{
+            translateX: -activeTab * SCREEN_WIDTH,
+          }}
+          transition={{ type: 'timing', duration: 300 }}
+        >
+          {[renderStoriesContent, renderListsContent, renderAboutContent].map(
+            (renderFn, index) => (
+              <View key={index} style={[styles.page, { width: SCREEN_WIDTH }]}>
+                <MotiView
+                  from={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 250 }}
+                >
+                  <ScrollView showsVerticalScrollIndicator={false}>
+                    {renderFn()}
+                  </ScrollView>
+                </MotiView>
+              </View>
+            )
+          )}
         </MotiView>
       </ScrollView>
 
-      <FloatingActionButton onPress={() => console.log('Create new story')} />
+      {/* ---------------- Floating Action Button ---------------- */}
+      <MotiView
+        from={{ translateY: 0 }}
+        animate={{ translateY: -6 }}
+        transition={{
+          loop: true,
+          type: 'timing',
+          duration: 1200,
+        }}
+      >
+        <FloatingActionButton onPress={() => {}} />
+      </MotiView>
     </SafeAreaView>
   );
 }
 
+/* ---------------- Styles ---------------- */
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 100,
-  },
+  container: { flex: 1 },
+  scrollView: { flex: 1 },
+  scrollContent: { paddingBottom: 100 },
   tabBarWrapper: {},
   pagesContainer: {
     flexDirection: 'row',
     minHeight: 400,
   },
-  page: {
-    // Width is set inline
-  },
-  storiesContent: {
-    flex: 1,
-  },
+  page: {},
+  storiesContent: { flex: 1 },
   draftSection: {
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.lg,
   },
-  sectionTitle: {
-    ...TYPOGRAPHY.h3,
-  },
+  sectionTitle: { ...TYPOGRAPHY.h3 },
   draftCard: {
     marginTop: SPACING.md,
     padding: SPACING.md,
@@ -214,10 +216,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: SPACING.md,
   },
-  draftInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
+  draftInfo: { flexDirection: 'row', alignItems: 'center' },
   draftAvatar: {
     width: 32,
     height: 32,
@@ -226,20 +225,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: SPACING.sm,
   },
-  draftAvatarText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  draftAuthor: {
-    ...TYPOGRAPHY.body,
-    fontWeight: '500',
-  },
-  draftMenu: {
-    padding: SPACING.xs,
-  },
-  draftTitle: {
-    ...TYPOGRAPHY.h3,
-  },
+  draftAvatarText: { fontSize: 16, fontWeight: '600' },
+  draftAuthor: { ...TYPOGRAPHY.body, fontWeight: '500' },
+  draftMenu: { padding: SPACING.xs },
+  draftTitle: { ...TYPOGRAPHY.h3 },
   emptyContent: {
     flex: 1,
     alignItems: 'center',

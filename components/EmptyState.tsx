@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, StyleSheet } from 'react-native';
-import {MotiView } from 'moti';
-import {MotiPressable} from 'moti/interactions';
+import { MotiView } from 'moti';
+import { MotiPressable } from 'moti/interactions';
 import { useTheme } from '@/context/ThemeContext';
 import { SPACING, TYPOGRAPHY } from '@/constants';
 
@@ -21,26 +21,64 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   const { colors } = useTheme();
 
   return (
-    <MotiView
-      from={{ opacity: 0, translateY: 6 }}
-      animate={{ opacity: 1, translateY: 0 }}
-      transition={{ type: 'timing', duration: 300 }}
-      style={styles.container}
-    >
-      <Text style={[styles.title, { color: colors.text.primary }]}>{title}</Text>
-      <Text style={[styles.message, { color: colors.text.secondary }]}>{message}</Text>
+    <MotiView style={styles.container}>
+      {/* Title */}
+      <MotiView
+        from={{ opacity: 0, translateY: 6 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        transition={{ type: 'timing', duration: 220 }}
+      >
+        <Text style={[styles.title, { color: colors.text.primary }]}>
+          {title}
+        </Text>
+      </MotiView>
+
+      {/* Message */}
+      <MotiView
+        from={{ opacity: 0, translateY: 6 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        transition={{ delay: 60, type: 'timing', duration: 220 }}
+      >
+        <Text style={[styles.message, { color: colors.text.secondary }]}>
+          {message}
+        </Text>
+      </MotiView>
+
+      {/* Action */}
       {actionText && onActionPress && (
-        <MotiPressable
-          style={[styles.button, { borderColor: colors.text.primary }]}
-          onPress={onActionPress}
-        >
-          <Text style={[styles.buttonText, { color: colors.text.primary }]}>{actionText}</Text>
+        <MotiPressable onPress={onActionPress}>
+          {(interaction) => (
+            <MotiView
+              from={{ opacity: 0, scale: 0.96 }}
+              animate={{
+                opacity: 1,
+                scale: interaction.value.pressed ? 0.96 : 1,
+              }}
+              transition={{
+                delay: 120,
+                type: 'spring',
+                damping: 16,
+              }}
+              style={[
+                styles.button,
+                { borderColor: colors.text.primary },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.buttonText,
+                  { color: colors.text.primary },
+                ]}
+              >
+                {actionText}
+              </Text>
+            </MotiView>
+          )}
         </MotiPressable>
       )}
     </MotiView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

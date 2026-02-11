@@ -27,6 +27,8 @@
         "INTERNET",
         "ACCESS_NETWORK_STATE"
       ],
+      "enableProguardInReleaseBuilds": true,
+      "enableShrinkResourcesInReleaseBuilds": true,
       "usesCleartextTraffic": true,
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,

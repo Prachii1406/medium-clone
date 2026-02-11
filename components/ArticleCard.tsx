@@ -1,61 +1,28 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  Pressable,
-  Dimensions,
-} from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated';
+import { View, Text, Image, StyleSheet, Pressable } from 'react-native';
 import { MotiView } from 'moti';
-import {MotiPressable} from 'moti/interactions';
+import { MotiPressable } from 'moti/interactions';
 import { Ionicons } from '@expo/vector-icons';
 import { Article } from '@/types';
 import { useTheme } from '@/context/ThemeContext';
 import { SPACING, TYPOGRAPHY } from '@/constants';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface ArticleCardProps {
   article: Article;
   onPress?: () => void;
 }
 
-// Use MotiPressable for pressable animations
-
-
-export const ArticleCard: React.FC<ArticleCardProps> = ({ article, onPress }) => {
-  const scale = useSharedValue(1);
-  const opacity = useSharedValue(1);
+export const ArticleCard: React.FC<ArticleCardProps> = ({
+  article,
+  onPress,
+}) => {
   const { colors } = useTheme();
   const [avatarError, setAvatarError] = useState(false);
   const [thumbnailError, setThumbnailError] = useState(false);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-    opacity: opacity.value,
-  }));
-
-  const handlePressIn = () => {
-    scale.value = withSpring(0.98, { damping: 15 });
-    opacity.value = withTiming(0.8, { duration: 150 });
-  };
-
-  const handlePressOut = () => {
-    scale.value = withSpring(1, { damping: 15 });
-    opacity.value = withTiming(1, { duration: 150 });
-  };
-
   const getColorFromName = (name: string) => {
-    const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2'];
-    const index = name.length % colors.length;
-    return colors[index];
+    const palette = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8'];
+    return palette[name.length % palette.length];
   };
 
   const renderAvatar = () => {
@@ -70,8 +37,14 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, onPress }) =>
     }
 
     return (
-      <View style={[styles.avatar, styles.avatarFallback, { backgroundColor: getColorFromName(article.author.name) }]}>
-        <Text style={[styles.avatarText, { color: '#FFFFFF' }]}>
+      <View
+        style={[
+          styles.avatar,
+          styles.avatarFallback,
+          { backgroundColor: getColorFromName(article.author.name) },
+        ]}
+      >
+        <Text style={styles.avatarText}>
           {article.author.name.charAt(0).toUpperCase()}
         </Text>
       </View>
@@ -83,124 +56,176 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, onPress }) =>
 
     if (!thumbnailError) {
       return (
-        <Image
-          source={{ uri: article.thumbnail }}
-          style={styles.thumbnail}
-          resizeMode="cover"
-          onError={() => setThumbnailError(true)}
-        />
+        <MotiView
+          from={{ opacity: 0, translateY: 4 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: 'timing', duration: 220 }}
+        >
+          <Image
+            source={{ uri: article.thumbnail }}
+            style={styles.thumbnail}
+            resizeMode="cover"
+            onError={() => setThumbnailError(true)}
+          />
+        </MotiView>
       );
     }
 
     return (
-      <View style={[styles.thumbnail, styles.thumbnailFallback, { backgroundColor: colors.surface }]}>
-        <Ionicons name="image-outline" size={32} color={colors.text.secondary} />
+      <View
+        style={[
+          styles.thumbnail,
+          styles.thumbnailFallback,
+          { backgroundColor: colors.surface },
+        ]}
+      >
+        <Ionicons
+          name="image-outline"
+          size={32}
+          color={colors.text.secondary}
+        />
       </View>
     );
   };
 
   return (
-    <MotiPressable
-      style={[
-        styles.container,
-        animatedStyle,
-        {
-          backgroundColor: colors.background,
-          borderBottomColor: colors.border,
-        },
-      ]}
-      onPress={onPress}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-    >
-      <MotiView
-        from={{ opacity: 0, translateY: 6 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        transition={{ type: 'timing', duration: 280 }}
-        style={styles.header}
-      >
-        <MotiView style={styles.authorContainer}>
-          {renderAvatar()}
-          <MotiView style={styles.authorInfo}>
-            <MotiView style={styles.authorNameRow}>
-              <Text style={[styles.authorName, { color: colors.text.primary }]}>
-                {article.author.name}
-              </Text>
-              {article.author.verified && (
-                <Ionicons
-                  name="checkmark-circle"
-                  size={16}
-                  color={colors.accent}
-                  style={styles.verifiedIcon}
-                />
-              )}
-            </MotiView>
-            {article.collection && (
-              <MotiView style={styles.collectionBadge}>
-                <Text style={[styles.collectionIcon, { color: colors.text.primary, backgroundColor: colors.accent }]}>
-                  {article.collection.icon}
-                </Text>
-                <Text style={[styles.collectionText, { color: colors.text.secondary }]}>
-                  In {article.collection.name}
-                </Text>
-                <Text style={[styles.collectionBy, { color: colors.text.secondary }]}> by </Text>
-                <Text style={[styles.collectionAuthor, { color: colors.text.primary }]}>
-                  {article.author.name}
+    <MotiPressable onPress={onPress}>
+      {(interaction) => (
+        <MotiView
+          animate={{
+            scale: interaction.value.pressed ? 0.985 : 1,
+            opacity: interaction.value.pressed ? 0.92 : 1,
+          }}
+          transition={{ type: 'timing', duration: 120 }}
+          style={[
+            styles.container,
+            {
+              backgroundColor: colors.background,
+              borderBottomColor: colors.border,
+            },
+          ]}
+        >
+          {/* HEADER — identity */}
+          <MotiView
+            from={{ opacity: 0, translateY: 4 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            transition={{ type: 'timing', duration: 200 }}
+            style={styles.header}
+          >
+            <View style={styles.authorContainer}>
+              {/* Avatar = calm, grounded */}
+              <MotiView
+                from={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 180 }}
+              >
+                {renderAvatar()}
+              </MotiView>
+
+              <View style={styles.authorInfo}>
+                <View style={styles.authorNameRow}>
+                  <Text style={[styles.authorName, { color: colors.text.primary }]}>
+                    {article.author.name}
+                  </Text>
+
+                  {/* Verified = micro-affirmation */}
+                  {article.author.verified && (
+                    <MotiView
+                      from={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 120, duration: 160 }}
+                    >
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={16}
+                        color={colors.accent}
+                        style={styles.verifiedIcon}
+                      />
+                    </MotiView>
+                  )}
+                </View>
+              </View>
+            </View>
+
+            <Ionicons
+              name="ellipsis-horizontal"
+              size={20}
+              color={colors.text.secondary}
+            />
+          </MotiView>
+
+          {/* CONTENT — reading focus */}
+          <MotiView
+            from={{ opacity: 0, translateY: 6 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            transition={{ delay: 60, duration: 240 }}
+            style={styles.content}
+          >
+            <View style={styles.textContent}>
+              <MotiView
+                animate={{
+                  opacity: interaction.value.pressed ? 0.85 : 1,
+                }}
+                transition={{ duration: 120 }}
+              >
+                <Text style={[styles.title, { color: colors.text.primary }]} numberOfLines={3}>
+                  {article.title}
                 </Text>
               </MotiView>
-            )}
+
+              <Text
+                style={[styles.subtitle, { color: colors.text.secondary }]}
+                numberOfLines={2}
+              >
+                {article.subtitle}
+              </Text>
+            </View>
+
+            {renderThumbnail()}
+          </MotiView>
+
+          {/* FOOTER — secondary info */}
+          <MotiView
+            from={{ opacity: 0 }}
+            animate={{ opacity: 0.7 }}
+            transition={{ delay: 120, duration: 200 }}
+            style={styles.footer}
+          >
+            <Pressable
+              style={[
+                styles.dislikeButton,
+                { borderColor: colors.text.secondary },
+              ]}
+            >
+              <Ionicons
+                name="thumbs-down-outline"
+                size={18}
+                color={colors.text.secondary}
+              />
+            </Pressable>
+
+            <View style={styles.metaContainer}>
+              <Text style={[styles.metaText, { color: colors.text.secondary }]}>
+                {article.date}
+              </Text>
+              <Ionicons name="hand-left" size={16} color={colors.text.secondary} style={styles.iconSpacing} />
+              <Text style={[styles.metaText, { color: colors.text.secondary }]}>
+                {formatNumber(article.claps)}
+              </Text>
+              <Ionicons name="chatbubble" size={16} color={colors.text.secondary} style={styles.iconSpacing} />
+              <Text style={[styles.metaText, { color: colors.text.secondary }]}>
+                {article.comments}
+              </Text>
+            </View>
           </MotiView>
         </MotiView>
-        <Ionicons name="ellipsis-horizontal" size={20} color={colors.text.secondary} />
-      </MotiView>
-
-      <MotiView
-        from={{ opacity: 0, translateY: 6 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        transition={{ type: 'timing', duration: 320 }}
-        style={styles.content}
-      >
-        <MotiView style={styles.textContent}>
-          <Text style={[styles.title, { color: colors.text.primary }]} numberOfLines={3}>
-            {article.title}
-          </Text>
-          <Text style={[styles.subtitle, { color: colors.text.secondary }]} numberOfLines={2}>
-            {article.subtitle}
-          </Text>
-        </MotiView>
-        {renderThumbnail()}
-      </MotiView>
-
-      <MotiView
-        from={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ type: 'timing', duration: 260 }}
-        style={styles.footer}
-      >
-        <Pressable style={[styles.dislikeButton, { borderColor: colors.text.secondary }]}>
-          <Ionicons name="thumbs-down-outline" size={18} color={colors.text.secondary} />
-        </Pressable>
-        
-        <MotiView style={styles.metaContainer}>
-          <Text style={[styles.metaText, { color: colors.text.secondary }]}>{article.date}</Text>
-          <Ionicons name="hand-left" size={16} color={colors.text.secondary} style={styles.iconSpacing} />
-          <Text style={[styles.metaText, { color: colors.text.secondary }]}>
-            {formatNumber(article.claps)}
-          </Text>
-          <Ionicons name="chatbubble" size={16} color={colors.text.secondary} style={styles.iconSpacing} />
-          <Text style={[styles.metaText, { color: colors.text.secondary }]}>{article.comments}</Text>
-        </MotiView>
-      </MotiView>
+      )}
     </MotiPressable>
   );
 };
 
-const formatNumber = (num: number): string => {
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1) + 'K';
-  }
-  return num.toString();
-};
+const formatNumber = (num: number): string =>
+  num >= 1000 ? (num / 1000).toFixed(1) + 'K' : num.toString();
 
 const styles = StyleSheet.create({
   container: {
