@@ -29,6 +29,7 @@ const TOPIC_TAGS = [
 
 export default function SearchScreen() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [focused, setFocused] = useState(false);
   const { colors, activeTheme } = useTheme();
 
   const trendingArticles = DUMMY_ARTICLES.slice(0, 2);
@@ -43,13 +44,35 @@ export default function SearchScreen() {
         backgroundColor={colors.background}
       />
 
-      <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text.primary }]}>Explore</Text>
-      </View>
+      {/* Header */}
+      <MotiView
+        from={{ opacity: 0, translateY: 12 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        transition={{ type: 'timing', duration: 400 }}
+      >
+        <View style={styles.header}>
+          <Text style={[styles.title, { color: colors.text.primary }]}>
+            Explore
+          </Text>
+        </View>
+      </MotiView>
 
       {/* Search Bar */}
       <View style={styles.searchContainer}>
-        <View style={[styles.searchBar, { backgroundColor: colors.surface }]}>
+        <MotiView
+          animate={{
+            scale: focused ? 1.02 : 1,
+            borderColor: focused ? colors.accent : colors.border,
+          }}
+          transition={{ type: 'spring', damping: 18 }}
+          style={[
+            styles.searchBar,
+            {
+              backgroundColor: colors.surface,
+              borderWidth: 1,
+            },
+          ]}
+        >
           <Ionicons name="search" size={20} color={colors.text.secondary} />
           <TextInput
             style={[styles.searchInput, { color: colors.text.primary }]}
@@ -57,8 +80,10 @@ export default function SearchScreen() {
             placeholderTextColor={colors.text.secondary}
             value={searchQuery}
             onChangeText={setSearchQuery}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
           />
-        </View>
+        </MotiView>
       </View>
 
       <ScrollView
@@ -85,6 +110,11 @@ export default function SearchScreen() {
                 }}
               >
                 <MotiPressable
+                  animate={({ pressed }) => ({
+                    scale: pressed ? 0.94 : 1,
+                    opacity: pressed ? 0.7 : 1,
+                  })}
+                  transition={{ type: 'timing', duration: 120 }}
                   style={[
                     styles.topicTag,
                     {
@@ -93,7 +123,12 @@ export default function SearchScreen() {
                     },
                   ]}
                 >
-                  <Text style={[styles.topicText, { color: colors.text.secondary }]}>
+                  <Text
+                    style={[
+                      styles.topicText,
+                      { color: colors.text.secondary },
+                    ]}
+                  >
                     {tag}
                   </Text>
                 </MotiPressable>
@@ -119,54 +154,59 @@ export default function SearchScreen() {
                 delay: 200 + index * 100,
               }}
             >
-              <View style={styles.trendingItem}>
-                <View style={styles.trendingNumber}>
-                  <Text
-                    style={[
-                      styles.trendingNumberText,
-                      { color: colors.text.secondary },
-                    ]}
-                  >
-                    {String(index + 1).padStart(2, '0')}
-                  </Text>
-                </View>
-
-                <View style={styles.trendingContent}>
-                  <View style={styles.trendingHeader}>
-                    <View
+              <MotiPressable
+                onPress={() => router.push(`/article?id=${article.id}`)}
+                animate={({ pressed }) => ({
+                  translateY: pressed ? -2 : 0,
+                  scale: pressed ? 0.98 : 1,
+                })}
+                transition={{ type: 'spring', stiffness: 220 }}
+              >
+                <View style={styles.trendingItem}>
+                  <View style={styles.trendingNumber}>
+                    <Text
                       style={[
-                        styles.trendingAvatar,
-                        { backgroundColor: colors.accent },
+                        styles.trendingNumberText,
+                        { color: colors.text.secondary },
                       ]}
                     >
-                      <Text style={styles.trendingAvatarText}>
-                        {article.collection?.icon || '📝'}
-                      </Text>
-                    </View>
-
-                    <View style={styles.trendingMeta}>
-                      <Text
-                        style={[
-                          styles.trendingAuthor,
-                          { color: colors.text.secondary },
-                        ]}
-                      >
-                        In {article.collection?.name || 'General'} by
-                      </Text>
-                      <Text
-                        style={[
-                          styles.trendingAuthorName,
-                          { color: colors.text.primary },
-                        ]}
-                      >
-                        {article.author.name}
-                      </Text>
-                    </View>
+                      {String(index + 1).padStart(2, '0')}
+                    </Text>
                   </View>
 
-                  <MotiPressable
-                    onPress={() => router.push(`/article?id=${article.id}`)}
-                  >
+                  <View style={styles.trendingContent}>
+                    <View style={styles.trendingHeader}>
+                      <View
+                        style={[
+                          styles.trendingAvatar,
+                          { backgroundColor: colors.accent },
+                        ]}
+                      >
+                        <Text style={styles.trendingAvatarText}>
+                          {article.collection?.icon || '📝'}
+                        </Text>
+                      </View>
+
+                      <View style={styles.trendingMeta}>
+                        <Text
+                          style={[
+                            styles.trendingAuthor,
+                            { color: colors.text.secondary },
+                          ]}
+                        >
+                          In {article.collection?.name || 'General'} by
+                        </Text>
+                        <Text
+                          style={[
+                            styles.trendingAuthorName,
+                            { color: colors.text.primary },
+                          ]}
+                        >
+                          {article.author.name}
+                        </Text>
+                      </View>
+                    </View>
+
                     <Text
                       style={[
                         styles.trendingTitle,
@@ -175,29 +215,18 @@ export default function SearchScreen() {
                     >
                       {article.title}
                     </Text>
-                  </MotiPressable>
 
-                  {article.thumbnail && (
-                    <View style={styles.trendingImageContainer}>
-                      <View
-                        style={[
-                          styles.trendingImage,
-                          { backgroundColor: colors.surface },
-                        ]}
-                      />
-                    </View>
-                  )}
-
-                  <Text
-                    style={[
-                      styles.trendingDate,
-                      { color: colors.text.secondary },
-                    ]}
-                  >
-                    {article.date}
-                  </Text>
+                    <Text
+                      style={[
+                        styles.trendingDate,
+                        { color: colors.text.secondary },
+                      ]}
+                    >
+                      {article.date}
+                    </Text>
+                  </View>
                 </View>
-              </View>
+              </MotiPressable>
             </MotiView>
           ))}
         </View>
@@ -207,35 +236,47 @@ export default function SearchScreen() {
           <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
             Recommended for you
           </Text>
-          {DUMMY_ARTICLES.slice(2, 5).map((article) => (
-            <ArticleCard
+
+          {DUMMY_ARTICLES.slice(2, 5).map((article, index) => (
+            <MotiView
               key={article.id}
-              article={article}
-              onPress={() => router.push(`/article?id=${article.id}`)}
-            />
+              from={{ opacity: 0, translateY: 16 }}
+              animate={{ opacity: 1, translateY: 0 }}
+              transition={{
+                type: 'timing',
+                duration: 400,
+                delay: index * 80,
+              }}
+            >
+              <ArticleCard
+                article={article}
+                onPress={() => router.push(`/article?id=${article.id}`)}
+              />
+            </MotiView>
           ))}
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
+
   header: {
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.md,
     paddingTop: SPACING.lg,
-     paddingLeft:SPACING.lg,
+    paddingLeft: SPACING.lg,
   },
-  title: {
-    ...TYPOGRAPHY.h1,
-  },
+
+  title: { ...TYPOGRAPHY.h1 },
+
   searchContainer: {
     paddingHorizontal: SPACING.md,
     paddingBottom: SPACING.md,
   },
+
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -244,65 +285,74 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     gap: SPACING.sm,
   },
+
   searchInput: {
     flex: 1,
     fontSize: 16,
     padding: 0,
   },
-  scrollView: {
-    flex: 1,
-  },
+
+  scrollView: { flex: 1 },
+
   scrollContent: {
     paddingBottom: SPACING.xl,
   },
+
   topicsSection: {
     paddingVertical: SPACING.md,
   },
+
   topicsScroll: {
     paddingHorizontal: SPACING.md,
     gap: SPACING.sm,
   },
+
   topicTag: {
     paddingVertical: SPACING.sm,
     paddingHorizontal: SPACING.md,
     borderRadius: 20,
     borderWidth: 1,
   },
+
   topicText: {
     fontSize: 14,
     fontWeight: '500',
   },
+
   trendingSection: {
     paddingTop: SPACING.lg,
     paddingBottom: SPACING.xl,
   },
+
   sectionTitle: {
     ...TYPOGRAPHY.h2,
     fontSize: 20,
     paddingHorizontal: SPACING.md,
     marginBottom: SPACING.lg,
   },
+
   trendingItem: {
     flexDirection: 'row',
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.md,
     gap: SPACING.md,
   },
-  trendingNumber: {
-    width: 32,
-  },
+
+  trendingNumber: { width: 32 },
+
   trendingNumberText: {
     fontSize: 28,
     fontWeight: '300',
   },
-  trendingContent: {
-    flex: 1,
-  },
+
+  trendingContent: { flex: 1 },
+
   trendingHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: SPACING.sm,
   },
+
   trendingAvatar: {
     width: 24,
     height: 24,
@@ -311,38 +361,31 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: SPACING.xs,
   },
-  trendingAvatarText: {
-    fontSize: 12,
-  },
+
+  trendingAvatarText: { fontSize: 12 },
+
   trendingMeta: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
   },
-  trendingAuthor: {
-    fontSize: 13,
-  },
+
+  trendingAuthor: { fontSize: 13 },
+
   trendingAuthorName: {
     fontSize: 13,
     fontWeight: '600',
   },
+
   trendingTitle: {
     fontSize: 16,
     fontWeight: '700',
     lineHeight: 24,
     marginBottom: SPACING.sm,
   },
-  trendingImageContainer: {
-    marginBottom: SPACING.sm,
-  },
-  trendingImage: {
-    width: '100%',
-    height: 120,
-    borderRadius: 4,
-  },
-  trendingDate: {
-    fontSize: 13,
-  },
+
+  trendingDate: { fontSize: 13 },
+
   recommendedSection: {
     paddingTop: SPACING.lg,
   },
